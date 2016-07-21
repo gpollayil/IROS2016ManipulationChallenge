@@ -13,7 +13,7 @@ object_template_fn = 'data/objects/object_template.obj'
 objects = {}
 objects['ycb'] = [f for f in os.listdir('data/objects/ycb')]
 objects['apc2015'] = [f for f in os.listdir('data/objects/apc2015')]
-robots = ['reflex_col']
+robots = ['reflex_col', 'soft_hand']
 
 object_geom_file_patterns = {
 	'ycb':'data/objects/ycb/%s/meshes/tsdf_mesh.stl',
@@ -26,7 +26,8 @@ object_masses = {
 	'apc2015':dict(),
 }
 robot_files = {
-	'reflex_col':'data/robots/reflex_col.rob'
+	'reflex_col':'data/robots/reflex_col.rob',
+	'soft_hand':'data/robots/soft_hand.urdf'
 }
 
 
@@ -157,8 +158,12 @@ def launch_simple(robotname,object_set,objectname):
 	for l in range(world.numRigidObjects()):
 		sim.body(world.rigidObject(l)).setCollisionPreshrink(visPreshrink)
 
-	#send a command to the hand: f1,f2,f3,preshape
-	hand.setCommand([0.2,0.2,0.2,0])
+	if robotname == 'reflex_col':
+		#send a command to the hand: f1,f2,f3,preshape
+		hand.setCommand([0.2,0.2,0.2,0])
+	elif robotname == 'soft_hand':
+		#send a command to the hand: synergy
+		hand.setCommand([0.8])
 
 	#By running this program you get a little more control over the simulation run, but it is
 	#incompatible with the Qt resource editor...
@@ -167,10 +172,17 @@ def launch_simple(robotname,object_set,objectname):
 	visualization.add("world",world)
 	visualization.show()
 	t0 = time.time()
+	t_lift = 1.5
+	lift_traj_duration = 0.5
 	while visualization.shown():
-		if sim.getTime() > 1:
-			desired = se3.mul((so3.identity(),[0,0,0.10]),xform)
-			send_moving_base_xform_linear(sim.controller(0),desired[0],desired[1],0.5)
+		if sim.getTime() > t_lift:
+			if robotname == 'reflex_col':
+				desired = se3.mul((so3.identity(), [0, 0, 0.10]), xform)
+				send_moving_base_xform_linear(sim.controller(0),desired[0],desired[1],lift_traj_duration)
+			elif robotname == 'soft_hand':
+				t_traj = min(1, max(0, (sim.getTime()-t_lift)/lift_traj_duration))
+				desired = se3.mul((so3.identity(), [0, 0, 0.10*t_traj]), xform)
+				send_moving_base_xform_PID(sim.controller(0), desired[0], desired[1])
 		visualization.lock()
 		sim.simulate(0.01)
 		sim.updateWorld()
@@ -188,5 +200,13 @@ try:
 	index = int(sys.argv[2])
 except IndexError:
 	index = random.randint(0,len(objects[dataset])-1)
-launch_simple("reflex_col",dataset,objects[dataset][index])
+try:
+	robotname = sys.argv[3]
+	if robotname not in robots:
+		print "unknown robot", robotname
+		robotname = "reflex_col"
+
+except IndexError:
+	robotname = "reflex_col"
+launch_simple(robotname, dataset, objects[dataset][index])
 visualization.kill()

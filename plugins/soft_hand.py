@@ -180,15 +180,15 @@ class HandEmulator(ActuatorEmulator):
             kI[i] = 0.0
             kD[i] = 0.0
 
-        #self.controller.setPIDGains(kP, kI, kD)
+        self.controller.setPIDGains(kP, kI, kD)
 
     def output(self):
         torque = np.array(self.n_dofs * [0.0])
 
-        q = np.array(self.robot.getConfig())
+        q = np.array(self.controller.getSensedConfig())
 
         q = q[self.q_to_t]
-        dq = np.array(self.robot.getVelocity())
+        dq = np.array(self.controller.getSensedVelocity())
         dq = dq[self.q_to_t]
 
         dq_a = dq[self.a_to_n]
@@ -268,7 +268,7 @@ class HandEmulator(ActuatorEmulator):
                     n_contacts += 1
                     J_l[l_id] = np.array(link_in_contact.getJacobian(
                                         (0, 0, 0)))
-                    print J_l[l_id].shape
+                    #print J_l[l_id].shape
         f_c = np.array(6 * n_contacts * [0.0])
         J_c = np.zeros((6 * n_contacts, self.u_dofs))
 
@@ -302,16 +302,14 @@ class HandEmulator(ActuatorEmulator):
             if 'force' in commands:
                 pass
 
-        #qdes = self.controller.getCommandedConfig()
-        #dqdes = self.controller.getCommandedVelocity()
-        #self.controller.setPIDCommand(qdes, dqdes, self.output())
-        self.controller.setTorque(self.output())
+        qdes = self.controller.getCommandedConfig()
+        dqdes = self.controller.getCommandedVelocity()
+        self.controller.setPIDCommand(qdes, dqdes, self.output())
         
     def substep(self, dt):
-        #qdes = self.controller.getCommandedConfig()
-        #dqdes = self.controller.getCommandedVelocity()
-        #self.controller.setPIDCommand(qdes, dqdes, self.output())
-        pass
+        qdes = self.controller.getCommandedConfig()
+        dqdes = self.controller.getCommandedVelocity()
+        self.controller.setPIDCommand(qdes, dqdes, self.output())
 
     def drawGL(self):
         pass
