@@ -13,7 +13,7 @@ gripper_name = 'soft_hand'
 klampt_model_name = 'data/robots/soft_hand.urdf'
 
 #the number of Klamp't model DOFs
-numDofs = 16
+numLinks = 38
 
 #The number of command dimensions
 numCommandDims = 1
@@ -56,8 +56,6 @@ class HandEmulator(ActuatorEmulator):
         self.mimic = dict()
         self.n_dofs = 0
 
-        self.q_a_ref = 0.0
-
         self.K_p = 3.0
         self.K_d = 0.03
         self.K_i = 0.01
@@ -73,10 +71,11 @@ class HandEmulator(ActuatorEmulator):
         if self.robot.getName() in [gripper_name, "temp"]:
             self.n_dofs = self.robot.numDrivers()
             self.a_dofs = 1
+            self.d_dofs = 0
         else:
             raise Exception('loaded robot is not a soft hand, rather %s'%self.robot.getName())
 
-        self.u_to_l = []    # will contain a map from underactuated joint id (exluding mimics) to child link id
+        self.u_to_l = []    # will contain a map from underactuated joint id (excluding mimics) to child link id
         self.l_to_i = dict()# will contain a map from link id (global) to link index (local)
         self.u_to_n = []    # will contain a map from underactuated joint id (excluding mimics) to driver id
         self.a_to_n = []    # will contain a map from actuated id to driver id
@@ -84,6 +83,7 @@ class HandEmulator(ActuatorEmulator):
 
         self.n_to_u = np.array(self.n_dofs*[-1])
         self.n_to_m = np.array(self.n_dofs*[-1])
+        self.n_to_a = np.array(self.n_dofs*[-1])
         # skip the fixed joints:
         # - soft_hand_kuka_coupler
         # - soft_hand_clamp
@@ -109,6 +109,8 @@ class HandEmulator(ActuatorEmulator):
                 self.n_to_m[i] = m_id
             elif phalanx == "wire":
                 self.a_to_n.append(i)
+                a_id = len(self.a_to_n) - 1
+                self.n_to_a[i] = a_id
             else:
                 if not self.hand.has_key(finger):
                     self.hand[finger] = dict()
@@ -122,6 +124,9 @@ class HandEmulator(ActuatorEmulator):
 
         self.u_dofs = len(self.u_to_n)
         self.m_dofs = len(self.m_to_n)
+        # checking load is successful
+        assert len(self.a_to_n) == self.a_dofs
+        self.a_dofs = len(self.a_to_n)
 
         # will contain a map from underactuated joint to mimic joints
         # this means, for example, that joint id 1 has to be matched by mimic joint 19
@@ -138,8 +143,11 @@ class HandEmulator(ActuatorEmulator):
                     joint_count = joint_count+1
 
         # loading elasticity and reduction map
-        self.R = np.array(self.u_dofs*[0.0]).T
+        self.R = np.zeros((self.a_dofs, self.u_dofs))
         self.E = np.eye(self.u_dofs)
+
+        self.q_a_ref = np.array(self.a_dofs*[0.0])
+        self.q_d_ref = np.array(self.d_dofs*[0.0])
 
         for i in xrange(driver_offset, self.robot.numDrivers()):
             driver = self.robot.driver(i)
@@ -151,7 +159,7 @@ class HandEmulator(ActuatorEmulator):
             u_id = self.n_to_u[i]
             if u_id != -1:
                 joint_position = self.paramsLoader.phalanxToJoint(finger,phalanx)
-                self.R[u_id] = self.paramsLoader.handParameters[finger][joint_position]['r']
+                self.R[0, u_id] = self.paramsLoader.handParameters[finger][joint_position]['r']
                 self.E[u_id,u_id] = self.paramsLoader.handParameters[finger][joint_position]['e']
 
         print 'Soft Hand loaded.'
@@ -199,20 +207,20 @@ class HandEmulator(ActuatorEmulator):
         q_u = q[self.u_to_n]
         q_m = q[self.m_to_n]
 
-        R_E_inv_R_T_inv = 1.0 / (self.R.dot(np.linalg.inv(self.E)).dot(self.R.T))
+        R_E_inv_R_T_inv = np.linalg.inv(self.R.dot(np.linalg.inv(self.E)).dot(self.R.T))
         sigma = q_a # q_a goes from 0.0 to 1.0
         f_c, J_c = self.get_contact_forces_and_jacobians()
         tau_c = J_c.T.dot(f_c)
 
         # tendon tension
-        f_a = R_E_inv_R_T_inv * sigma * self.synergy_reduction + R_E_inv_R_T_inv * np.linalg.inv(self.E).dot(tau_c)
+        f_a = R_E_inv_R_T_inv.dot(sigma) * self.synergy_reduction + R_E_inv_R_T_inv.dot(self.R).dot(np.linalg.inv(self.E).dot(tau_c))
         # emulate the synergy PID, notice there is no integrator ATM working on q_a_int
         torque_a = self.K_p*(self.q_a_ref - q_a) \
                    + self.K_d*(0.0 - dq_a) \
                    + self.K_i*self.q_a_int \
                    - (f_a / self.synergy_reduction)
 
-        torque_u = self.R.T*f_a - self.E.dot(q_u)
+        torque_u = self.R.T.dot(f_a) - self.E.dot(q_u)
 
         torque_m = self.K_p_m*(q_u[self.m_to_u] - q_m) - self.K_d_m*dq_m
 
@@ -284,10 +292,10 @@ class HandEmulator(ActuatorEmulator):
 
 
     def setCommand(self, command):
-        self.q_a_ref = max(min(command[0], 1), 0)
+        self.q_a_ref = [max(min(v, 1), 0) for v in command]
 
     def getCommand(self):
-        return [self.q_a_ref]
+        return self.q_a_ref
 
     def process(self, commands ,dt):
         if commands:
