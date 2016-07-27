@@ -13,7 +13,7 @@ object_template_fn = 'data/objects/object_template.obj'
 objects = {}
 objects['ycb'] = [f for f in os.listdir('data/objects/ycb')]
 objects['apc2015'] = [f for f in os.listdir('data/objects/apc2015')]
-robots = ['reflex_col', 'soft_hand']
+robots = ['reflex_col', 'soft_hand', 'reflex']
 
 object_geom_file_patterns = {
 	'ycb':'data/objects/ycb/%s/meshes/tsdf_mesh.stl',
@@ -27,7 +27,8 @@ object_masses = {
 }
 robot_files = {
 	'reflex_col':'data/robots/reflex_col.rob',
-	'soft_hand':'data/robots/soft_hand.urdf'
+	'soft_hand':'data/robots/soft_hand.urdf',
+	'reflex':'data/robots/reflex.rob'
 }
 
 
@@ -158,7 +159,7 @@ def launch_simple(robotname,object_set,objectname):
 	for l in range(world.numRigidObjects()):
 		sim.body(world.rigidObject(l)).setCollisionPreshrink(visPreshrink)
 
-	if robotname == 'reflex_col':
+	if robotname in ['reflex_col', 'reflex']:
 		#send a command to the hand: f1,f2,f3,preshape
 		hand.setCommand([0.2,0.2,0.2,0])
 	elif robotname == 'soft_hand':
@@ -179,7 +180,7 @@ def launch_simple(robotname,object_set,objectname):
 			if robotname == 'reflex_col':
 				desired = se3.mul((so3.identity(), [0, 0, 0.10]), xform)
 				send_moving_base_xform_linear(sim.controller(0),desired[0],desired[1],lift_traj_duration)
-			elif robotname == 'soft_hand':
+			elif robotname in ['soft_hand', 'reflex']:
 				t_traj = min(1, max(0, (sim.getTime()-t_lift)/lift_traj_duration))
 				desired = se3.mul((so3.identity(), [0, 0, 0.10*t_traj]), xform)
 				send_moving_base_xform_PID(sim.controller(0), desired[0], desired[1])
