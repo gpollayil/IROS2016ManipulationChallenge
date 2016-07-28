@@ -66,6 +66,8 @@ class CompliantHandEmulator(ActuatorEmulator):
 
         self.loadHandParameters()
 
+        self.loadContactInfo()
+
         self.setupController()
 
         self.printHandInfo()
@@ -77,6 +79,12 @@ class CompliantHandEmulator(ActuatorEmulator):
          - synergy actuators to driver id and vice_versa (a_to_n, n_to_a)
          - regular actuators to driver id and vice_versa (d_to_n, n_to_d)
          - mimic joints to driver id and vice-versa (m_to_n, n_to_m)
+
+         Notice that we expect the hand model to respect the standard defined in the documentation, in particular:
+         - underactuated joints should have as a child a real link with corresponding collision mesh.
+         Still, if this characteristic is not satisfied, it is possible to manually write the map that links underactuated
+         joint ids with the following collision mesh, that is the the u_to_l map. For each link in the map, the l_to_i
+         map needs also to be filled.
         """
         pass
 
@@ -84,7 +92,11 @@ class CompliantHandEmulator(ActuatorEmulator):
         return self.R
 
     def loadContactInfo(self):
-        pass
+        # loading previously defined maps
+        for i in self.u_to_n:
+            link = self.robot.link(self.robot.driver(i).getName())
+            self.u_to_l.append(link.getID())
+            self.l_to_i[link.getID()] = link.getIndex()
 
     def setupController(self):
         kP, kI, kD = self.controller.getPIDGains()

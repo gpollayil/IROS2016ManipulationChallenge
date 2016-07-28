@@ -82,9 +82,6 @@ class HandEmulator(CompliantHandEmulator):
                     self.hand[finger] = dict()
                 self.hand[finger][phalanx] = i
                 self.u_to_n.append(i)
-                link = self.robot.link(self.robot.driver(i).getName())
-                self.u_to_l.append(link.getID())
-                self.l_to_i[link.getID()] = link.getIndex()
                 u_id = len(self.u_to_n)-1
                 self.n_to_u[i] = u_id
 

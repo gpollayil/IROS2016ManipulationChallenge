@@ -95,7 +95,6 @@ class HandEmulator(CompliantHandEmulator):
             num = int(num)
             if type in ['proximal', 'distal']:
                 self.u_to_n.append(i)
-                self.u_to_l.append(link.getID())
                 u_id = len(self.u_to_n) - 1
                 self.n_to_u[i] = u_id
                 if not self.hand.has_key(num):
@@ -114,8 +113,6 @@ class HandEmulator(CompliantHandEmulator):
                 self.d_to_n.append(i)
                 d_id = len(self.d_to_n) - 1
                 self.n_to_d[i] = d_id
-
-            self.l_to_i[link.getID()] = link.getIndex()
 
         # checking load is successful
         assert len(self.u_to_n) == self.u_dofs
