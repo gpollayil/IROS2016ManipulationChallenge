@@ -41,11 +41,16 @@ commandMaximumVelocity = [1]
 class HandEmulator(CompliantHandEmulator):
     """An simulation model for the SoftHand for use with SimpleSimulation"""
     def __init__(self, sim, robotindex=0, link_offset=0, driver_offset=0):
-        global klampt_model_name, gripper_name
         CompliantHandEmulator.__init__(self, sim, robotindex, link_offset, driver_offset, a_dofs=1, d_dofs=0)
 
-        self.paramsLoader = SoftHandLoader(klampt_model_name)
+        print 'Mimic Joint Info:', self.mimic
+        print 'Underactuated Joint Info:', self.hand
+        print 'Joint parameters:', self.paramsLoader.handParameters
+        print 'Soft Hand loaded.'
 
+    def loadHandParameters(self):
+        global klampt_model_name, gripper_name
+        self.paramsLoader = SoftHandLoader(klampt_model_name)
 
         print "Loaded robot name is:", self.robot.getName()
         print "Number of Drivers:", self.robot.numDrivers()
@@ -53,7 +58,7 @@ class HandEmulator(CompliantHandEmulator):
             raise Exception('loaded robot is not a soft hand, rather %s'%self.robot.getName())
 
         # loading previously defined maps
-        for i in xrange(driver_offset, self.robot.numDrivers()):
+        for i in xrange(self.driver_offset, self.robot.numDrivers()):
             driver = self.robot.driver(i)
             print "Driver ", i, ": ", driver.getName()
             try:
@@ -107,7 +112,7 @@ class HandEmulator(CompliantHandEmulator):
         self.R = np.zeros((self.a_dofs, self.u_dofs))
         self.E = np.eye(self.u_dofs)
 
-        for i in xrange(driver_offset, self.robot.numDrivers()):
+        for i in xrange(self.driver_offset, self.robot.numDrivers()):
             driver = self.robot.driver(i)
             try:
                 _, _, finger, phalanx, fake_id = driver.getName().split('_')
@@ -119,13 +124,6 @@ class HandEmulator(CompliantHandEmulator):
                 joint_position = self.paramsLoader.phalanxToJoint(finger,phalanx)
                 self.R[0, u_id] = self.paramsLoader.handParameters[finger][joint_position]['r']
                 self.E[u_id,u_id] = self.paramsLoader.handParameters[finger][joint_position]['e']
-
-        print 'Soft Hand loaded.'
-        self.printHandInfo()
-        print 'Mimic Joint Info:', self.mimic
-        print 'Underactuated Joint Info:', self.hand
-        print 'Joint parameters:', self.paramsLoader.handParameters
-
 
 class HandSimGLViewer(GLSimulationProgram):
     def __init__(self,world,base_link=0,base_driver=0):

@@ -5,7 +5,6 @@ import numpy as np
 class CompliantHandEmulator(ActuatorEmulator):
     """An simulation model for the SoftHand for use with SimpleSimulation"""
     def __init__(self, sim, robotindex=0, link_offset=0, driver_offset=0, a_dofs=0, d_dofs=0, u_dofs=0, m_dofs=0):
-        global klampt_model_name, gripper_name, numCommandDims
         self.world = sim.world
         self.sim = sim
         self.sim.enableContactFeedbackAll()
@@ -65,6 +64,29 @@ class CompliantHandEmulator(ActuatorEmulator):
         self.q_a_ref = np.array(self.a_dofs * [0.0])
         self.q_d_ref = np.array(self.d_dofs * [0.0])
 
+        self.loadHandParameters()
+
+        self.setupController()
+
+        self.printHandInfo()
+
+    def loadHandParameters(self):
+        """
+        loadHandParameters loads the maps from:
+         - underactuated joint id to driver id and vice_versa (n_to_u, u_to_n)
+         - synergy actuators to driver id and vice_versa (a_to_n, n_to_a)
+         - regular actuators to driver id and vice_versa (d_to_n, n_to_d)
+         - mimic joints to driver id and vice-versa (m_to_n, n_to_m)
+        """
+        pass
+
+    def updateR(self, q_u):
+        return self.R
+
+    def loadContactInfo(self):
+        pass
+
+    def setupController(self):
         kP, kI, kD = self.controller.getPIDGains()
         for i in self.u_to_n:
             kP[i] = 0.0
@@ -149,10 +171,6 @@ class CompliantHandEmulator(ActuatorEmulator):
         q = q[self.q_to_t]
         q_u = q[self.u_to_n]
         self.updateR(q_u)
-
-    def updateR(self, q_u):
-        return self.R
-
 
     def get_contact_forces_and_jacobians(self):
         """

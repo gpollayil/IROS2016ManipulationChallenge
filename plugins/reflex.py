@@ -66,21 +66,23 @@ class HandModel:
 class HandEmulator(CompliantHandEmulator):
     """An simulation model for the SoftHand for use with SimpleSimulation"""
     def __init__(self, sim, robotindex=0, link_offset=0, driver_offset=0):
-        global gripper_name, numCommandDims
         CompliantHandEmulator.__init__(self, sim, robotindex, link_offset, driver_offset, a_dofs=3, d_dofs=1, u_dofs=6)
+
+        print 'Reflex Hand loaded.'
+
+    def loadHandParameters(self):
+        global klampt_model_name, gripper_name
 
         self.n_fingers = 3
         self.u_dofs_per_finger = 2
 
-        self.synergy_reduction = 7.0  # convert cable tension into motor torque
-
         print "Loaded robot name is:", self.robot.getName()
         print "Number of Drivers:", self.robot.numDrivers()
         if self.robot.getName() not in [gripper_name, "temp"]:
-            raise Exception('loaded robot is not a reflex hand, rather %s'%self.robot.getName())
+            raise Exception('loaded robot is not a reflex hand, rather %s' % self.robot.getName())
 
         # loading previously defined maps
-        for i in xrange(driver_offset, self.robot.numDrivers()):
+        for i in xrange(self.driver_offset, self.robot.numDrivers()):
             driver = self.robot.driver(i)
             link = self.robot.link(driver.getName())
 
@@ -97,24 +99,23 @@ class HandEmulator(CompliantHandEmulator):
                 u_id = len(self.u_to_n) - 1
                 self.n_to_u[i] = u_id
                 if not self.hand.has_key(num):
-                    self.hand[num-1] = dict()
-                    self.hand[num-1]['f_to_u'] = np.array(self.u_dofs_per_finger*[0.0])
+                    self.hand[num - 1] = dict()
+                    self.hand[num - 1]['f_to_u'] = np.array(self.u_dofs_per_finger * [0.0])
                     if type is 'proximal':
                         type_to_id = 0
                     else:
                         type_to_id = 1
-                self.hand[num-1]['f_to_u'][type_to_id] = u_id
+                self.hand[num - 1]['f_to_u'][type_to_id] = u_id
             elif type == 'wire':
                 self.a_to_n.append(i)
                 a_id = len(self.a_to_n) - 1
                 self.n_to_a[i] = a_id
             elif type == 'swivel':
                 self.d_to_n.append(i)
-                d_id = len(self.d_to_n) -1
+                d_id = len(self.d_to_n) - 1
                 self.n_to_d[i] = d_id
 
             self.l_to_i[link.getID()] = link.getIndex()
-
 
         # checking load is successful
         assert len(self.u_to_n) == self.u_dofs
@@ -129,9 +130,6 @@ class HandEmulator(CompliantHandEmulator):
         self.E[1, 1] = self.E[3, 3] = self.E[5, 5] = 1
 
         self.initR()
-
-        print 'Reflex Hand loaded.'
-        self.printHandInfo()
 
     def updateR(self, q_u):
         da_vinci_f_i = np.ndarray((1,self.u_dofs_per_finger))
