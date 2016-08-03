@@ -1,8 +1,10 @@
 from klampt import *
 from klampt.glrobotprogram import *
+from klampt.glprogram import *
 from loaders.soft_hand_loader import SoftHandLoader
 from actuators.CompliantHandEmulator import CompliantHandEmulator
 import numpy as np
+import sys
 
 
 
@@ -43,10 +45,26 @@ class HandEmulator(CompliantHandEmulator):
     def __init__(self, sim, robotindex=0, link_offset=0, driver_offset=0):
         CompliantHandEmulator.__init__(self, sim, robotindex, link_offset, driver_offset, a_dofs=1, d_dofs=0)
 
+        self.synergy_reduction = 7.0  # convert cable tension into motor torque
+        self.effort_scaling = -1.0
+
         print 'Mimic Joint Info:', self.mimic
         print 'Underactuated Joint Info:', self.hand
         print 'Joint parameters:', self.paramsLoader.handParameters
         print 'Soft Hand loaded.'
+
+        # debug maps: OK
+        """
+        print self.u_to_l
+        print self.l_to_i
+        for i in xrange(self.driver_offset, self.robot.numDrivers()):
+            print "Driver name:", self.robot.driver(i).getName()
+            u_id = self.n_to_u[i]
+            print "id u_id l_id:", i, u_id
+            if u_id != -1:
+                print "Link name (index):", self.robot.link(self.l_to_i[self.u_to_l[u_id]]).getName()
+                print "Link name (id):", self.world.getName(self.u_to_l[u_id])
+        """
 
     def loadHandParameters(self):
         global klampt_model_name, gripper_name
@@ -134,8 +152,45 @@ class HandSimGLViewer(GLSimulationProgram):
         #print "Time",self.sim.getTime()
         return
 
+    def display(self):
+        GLSimulationProgram.display(self)
+
+        #draw forces
+        glDisable(GL_LIGHTING)
+        glDisable(GL_DEPTH_TEST)
+        glLineWidth(4.0)
+        glBegin(GL_LINES)
+        for l_id in self.handsim.virtual_contacts:
+            glColor3f(0,1,0)
+            forcelen = 0.1
+            l = self.handsim.robot.link(self.handsim.l_to_i[l_id])
+            b = self.sim.body(l)
+            p = [0,0,0]
+            f = self.handsim.virtual_wrenches[l_id][0:3]
+            glVertex3f(*se3.apply(b.getTransform(), p))
+            glVertex3f(*se3.apply(b.getTransform(), vectorops.madd(p,f,forcelen)))
+            """
+            # draw local link frame
+            for color in {(1, 0, 0), (0, 1, 0), (0, 0, 1)}:
+                glColor3f(*color)
+                glVertex3f(*se3.apply(b.getTransform(), p))
+                glVertex3f(*se3.apply(b.getTransform(), vectorops.madd(p, color, 0.1)))
+            """
+        glEnd()
+
+        glLineWidth(1)
+        glEnable(GL_DEPTH_TEST)
+        glEnable(GL_LIGHTING)
+
     def idle(self):
         if self.simulate:
+            for l_id in self.handsim.virtual_contacts:
+                glColor3f(0, 1, 0)
+                l = self.handsim.robot.link(self.handsim.l_to_i[l_id])
+                b = self.sim.body(l)
+                f = self.handsim.virtual_wrenches[l_id][0:3]
+                p = [0,0,0]
+                b.applyForceAtLocalPoint(se3.apply_rotation(b.getTransform(),f),p)
             self.control_loop()
             self.sim.simulate(self.control_dt)
             glutPostRedisplay()
@@ -143,10 +198,14 @@ class HandSimGLViewer(GLSimulationProgram):
     def print_help(self):
         GLSimulationProgram.print_help()
         print "o/l: increase/decrease synergy command"
+        print "q/a: activate/deactivate virtual force at index distal phalanx"
 
     def keyboardfunc(self, c, x, y):
         # Put your keyboard handler here
         # the current example toggles simulation / movie mode
+        index_distal_jid = self.handsim.hand['index']['distal']
+        index_distal_uid = self.handsim.n_to_u[index_distal_jid]
+        index_distal_id = self.handsim.u_to_l[index_distal_uid]
         if c == 'o':
             u = self.handsim.getCommand()
             u[0] += 0.1
@@ -155,18 +214,27 @@ class HandSimGLViewer(GLSimulationProgram):
             u = self.handsim.getCommand()
             u[0] -= 0.1
             self.handsim.setCommand(u)
+        elif c == 'q':
+            self.handsim.virtual_contacts[index_distal_id] = True
+            self.handsim.virtual_wrenches[index_distal_id] = np.array([0,0.0,-5.0,0,0,0])
+        elif c == 'a':
+            if self.handsim.virtual_contacts.has_key(index_distal_id):
+                self.handsim.virtual_contacts.pop(index_distal_id)
+            if self.handsim.virtual_wrenches.has_key(index_distal_id):
+                self.handsim.virtual_wrenches.pop(index_distal_id)
         else:
             GLSimulationProgram.keyboardfunc(self, c, x, y)
         glutPostRedisplay()
 
-        
-if __name__=='__main__':
-    global klampt_model_name
+if __name__ == '__main__':
     world = WorldModel()
-    if not world.readFile(klampt_model_name):
-        print "Could not load SoftHand hand from",klampt_model_name
-        exit(1)
+    if len(sys.argv) == 2:
+        if not world.readFile(sys.argv[1]):
+            print "Could not load SoftHand hand from", sys.argv[1]
+            exit(1)
+    else:
+        if not world.readFile(klampt_model_name):
+            print "Could not load SoftHand hand from", klampt_model_name
+            exit(1)
     viewer = HandSimGLViewer(world)
     viewer.run()
-
-    
