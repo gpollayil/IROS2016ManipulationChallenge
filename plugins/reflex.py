@@ -68,8 +68,9 @@ class HandEmulator(CompliantHandEmulator):
     def __init__(self, sim, robotindex=0, link_offset=0, driver_offset=0):
         CompliantHandEmulator.__init__(self, sim, robotindex, link_offset, driver_offset, a_dofs=3, d_dofs=1, u_dofs=6)
 
-        self.synergy_reduction = -3.0
-        self.effort_scaling = -1.0
+        #self.synergy_reduction = 10.5
+        self.synergy_reduction = 3.6
+        self.effort_scaling = 10.5
         self.model = HandModel(self.robot, link_offset, driver_offset)
 
         print 'Reflex Hand loaded.'
@@ -142,26 +143,28 @@ class HandEmulator(CompliantHandEmulator):
         self.a_dofs = len(self.a_to_n)
 
         # params loading
-        self.E[0, 0] = self.E[2, 2] = self.E[4, 4] = 0.1
-        self.E[1, 1] = self.E[3, 3] = self.E[5, 5] = 1
+        self.E[0, 0] = self.E[2, 2] = self.E[4, 4] = 1.0
+        self.E[1, 1] = self.E[3, 3] = self.E[5, 5] = 2.0
 
+        self.q_u_rest = np.array(self.n_fingers*[-0.34,0.0])
+        self.sigma_offset = np.array(self.a_dofs * [0.1])
         self.initR()
 
     def updateR(self, q_u):
         da_vinci_f_i = np.ndarray((1,self.u_dofs_per_finger))
 
         # base pulley radius
-        r0 = 0.02
+        r0 = 0.015
         # proximal phalanx equivalent pulley radius
         r1 = 0.002
         # the distal link does not have a pulley
         r2 = 0.0
 
         a1 = 0.04
-        b1 = 0.0021
+        b1 = 0.01
         l1 = 0.05
 
-        a2 = 0.01
+        a2 = 0.02
         b2 = 0.0
 
 
@@ -171,7 +174,9 @@ class HandEmulator(CompliantHandEmulator):
             theta_1_u_id = self.hand[i]['f_to_u'][0]
             theta_2_u_id = self.hand[i]['f_to_u'][1]
             theta_1 = 0.5*np.pi - q_u[theta_1_u_id]
+            #theta_1 = q_u[theta_1_u_id]
             theta_2 = 0.5*np.pi - q_u[theta_2_u_id]
+            theta_2 = q_u[theta_2_u_id]
 
             # from Birglen et al, 2007, page 55
             r = r2 - r1
@@ -181,11 +186,21 @@ class HandEmulator(CompliantHandEmulator):
             R1 = r1 + (b1*(r*b - a*l) - (l1-a1)*(a*r + b*l))/(a**2+b**2)
 
             # from Birglen Transmission matrix to R
-            da_vinci_f_i[0,0] = -r0
-            da_vinci_f_i[0,1] = R1
+            da_vinci_f_i[0,0] = 1.0
+            da_vinci_f_i[0,1] = -R1/r0
 
             self.R[i,i*2:i*2+2] = da_vinci_f_i
         return self.R
+
+    def setCommand(self, command):
+        self.q_a_ref = np.array([1.0 - self.sigma_offset[i] - max(min(v, 1), 0) for i, v in enumerate(command) if i < self.a_dofs])
+        self.q_d_ref = np.array([max(min(v, 1), 0) for i, v in enumerate(command) if
+                        i >= self.a_dofs and i < self.a_dofs + self.d_dofs])
+        print command
+
+
+    def getCommand(self):
+        return np.hstack([1.0 - self.sigma_offset - self.q_a_ref, self.q_d_ref])
 
 class HandSimGLViewer(GLSimulationProgram):
     def __init__(self,world,base_link=0,base_driver=0):
@@ -236,7 +251,7 @@ class HandSimGLViewer(GLSimulationProgram):
                 b = self.sim.body(l)
                 f = self.handsim.virtual_wrenches[l_id][0:3]
                 com = l.getMass().getCom()
-                b.applyForceAtLocalPoint(se3.apply_rotation(b.getTransform(),f),com) # could also use applyWrench with moment=[0,0,0]
+                b.applyForceAtLocalPoint(se3.apply_rotation(b.getTransform(),50*f),com) # could also use applyWrench with moment=[0,0,0]
             self.control_loop()
             self.sim.simulate(self.control_dt)
             glutPostRedisplay()
@@ -258,7 +273,7 @@ class HandSimGLViewer(GLSimulationProgram):
         l2i = self.handsim.l_to_i
         link_index_to_id = {y: x for x, y in l2i.iteritems()}
         finger1_l_id, finger2_l_id, finger3_l_id = [link_index_to_id[index] for index in pl]
-        force_at_com = [0, 0, -1.0]
+        force_at_com = [0, 0, -5.0]
         wrench_at_base = dict()
         for l_id in [finger1_l_id, finger2_l_id, finger3_l_id]:
             l = self.handsim.robot.link(self.handsim.l_to_i[l_id])
@@ -270,35 +285,35 @@ class HandSimGLViewer(GLSimulationProgram):
 
         if c=='y':
             u = self.handsim.getCommand()
-            u[0] += 0.1
+            u[0] += 0.01
             self.handsim.setCommand(u)
         elif c=='h':
             u = self.handsim.getCommand()
-            u[0] -= 0.1
+            u[0] -= 0.01
             self.handsim.setCommand(u)
         elif c=='u':
             u = self.handsim.getCommand()
-            u[1] += 0.1
+            u[1] += 0.01
             self.handsim.setCommand(u)
         elif c=='j':
             u = self.handsim.getCommand()
-            u[1] -= 0.1
+            u[1] -= 0.01
             self.handsim.setCommand(u)
         elif c=='i':
             u = self.handsim.getCommand()
-            u[2] += 0.1
+            u[2] += 0.01
             self.handsim.setCommand(u)
         elif c=='k':
             u = self.handsim.getCommand()
-            u[2] -= 0.1
+            u[2] -= 0.01
             self.handsim.setCommand(u)
         elif c=='o':
             u = self.handsim.getCommand()
-            u[3] += 0.1
+            u[3] += 0.01
             self.handsim.setCommand(u)
         elif c=='l':
             u = self.handsim.getCommand()
-            u[3] -= 0.1
+            u[3] -= 0.01
             self.handsim.setCommand(u)
         elif c == 'e':
             self.handsim.virtual_contacts[finger1_l_id] = True
@@ -330,11 +345,15 @@ class HandSimGLViewer(GLSimulationProgram):
 
         
 if __name__=='__main__':
-    global klampt_model_name
     world = WorldModel()
-    if not world.readFile(klampt_model_name):
-        print "Could not load Reflex hand from", klampt_model_name
-        exit(1)
+    if len(sys.argv) == 2:
+        if not world.readFile(sys.argv[1]):
+            print "Could not load SoftHand hand from", sys.argv[1]
+            exit(1)
+    else:
+        if not world.readFile(klampt_model_name):
+            print "Could not load SoftHand hand from", klampt_model_name
+            exit(1)
     viewer = HandSimGLViewer(world)
     viewer.run()
 
