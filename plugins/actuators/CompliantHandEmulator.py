@@ -10,6 +10,7 @@ class CompliantHandEmulator(ActuatorEmulator):
         self.sim.enableContactFeedbackAll()
         self.controller = self.sim.controller(robotindex)
         self.robot = self.world.robot(robotindex)
+        self.robotindex = robotindex
 
         self.link_offset = link_offset
         self.driver_offset = driver_offset
@@ -138,10 +139,10 @@ class CompliantHandEmulator(ActuatorEmulator):
         # gravity compensation
         torque = self.g_q[self.q_to_t]
 
-        q = np.array(self.controller.getSensedConfig())
+        q = np.array(self.sim.getActualConfig(self.robotindex))
 
         q = q[self.q_to_t]
-        dq = np.array(self.controller.getSensedVelocity())
+        dq = np.array(self.sim.getActualVelocity(self.robotindex))
         dq = dq[self.q_to_t]
 
         dq_a = dq[self.a_to_n]
@@ -176,7 +177,7 @@ class CompliantHandEmulator(ActuatorEmulator):
         torque[self.u_to_n] += torque_u # underactuated joints are emulated, no gravity
         torque[self.m_to_n] += torque_m # mimic joints are emulated, no gravity
 
-        qdes = np.array(self.controller.getCommandedConfig())
+        qdes = np.array(self.sim.getActualConfig(self.robotindex))
         qdes[[self.q_to_t[u_id] for u_id in self.u_to_n]] = q_u_ref
         qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = q_u_ref
         qdes[[self.q_to_t[a_id] for a_id in self.a_to_n]] = self.q_a_ref
@@ -194,12 +195,12 @@ class CompliantHandEmulator(ActuatorEmulator):
         # quirk: torque has n_dofs elements, qdes has n_links elements.
         # setPIDCommand accepts a qdes of either n_links or n_dofs size, but
         # requires a torque sized as n_dofs. We will therefore return the full
-        # qdes so that we can use controller.getCommandedVelocity() as velocity term of the PID
+        # qdes so that we can use sim.getActualVelocity(self.robotindex) as velocity term of the PID
         # (which returns a vector sized n_links)
         return torque, qdes
 
     def initR(self):
-        q = np.array(self.controller.getSensedConfig())
+        q = np.array(self.sim.getActualConfig(self.robotindex))
         q = q[self.q_to_t]
         q_u = q[self.u_to_n]
         self.updateR(q_u)
@@ -257,7 +258,7 @@ class CompliantHandEmulator(ActuatorEmulator):
                 n_contacts += 1
                 J_l[l_id] = np.array(link_in_contact.getJacobian(
                     (0, 0, 0)))
-                self.robot.setConfig(self.controller.getSensedConfig())
+                self.robot.setConfig(self.sim.getActualConfig(self.robotindex))
                 #print "J_l[l_id]:\n",J_l[l_id]
                 #print "J_l shape", J_l[l_id].shape
         f_c = np.array(6 * n_contacts * [0.0])
@@ -297,14 +298,14 @@ class CompliantHandEmulator(ActuatorEmulator):
                 pass
 
         torque, qdes = self.output()
-        dqdes = self.controller.getCommandedVelocity()
+        dqdes = self.sim.getActualVelocity(self.robotindex)
         self.controller.setPIDCommand(qdes, dqdes, torque)
 
     def substep(self, dt):
         torque, qdes = self.output()
-        #qdes = np.array(self.controller.getCommandedConfig())
+        #qdes = np.array(self.sim.getActualConfig(self.robotindex))
         qdes[[self.q_to_t[d_id] for d_id in self.d_to_n]] = self.q_d_ref
-        dqdes = self.controller.getCommandedVelocity()
+        dqdes = self.sim.getActualVelocity(self.robotindex)
         self.controller.setPIDCommand(qdes, dqdes, torque)
 
 
