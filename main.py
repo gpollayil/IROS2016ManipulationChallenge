@@ -29,7 +29,7 @@ object_template_fn = 'data/objects/object_template.obj'
 objects = {}
 objects['ycb'] = [f for f in os.listdir('data/objects/ycb')]
 objects['apc2015'] = [f for f in os.listdir('data/objects/apc2015')]
-robots = ['reflex_col']
+robots = ['reflex_col', 'soft_hand', 'reflex']
 
 object_geom_file_patterns = {
 	'ycb':['data/objects/ycb/%s/meshes/tsdf_mesh.stl','data/objects/ycb/%s/meshes/poisson_mesh.stl'],
@@ -42,7 +42,9 @@ object_masses = {
 	'apc2015':dict(),
 }
 robot_files = {
-	'reflex_col':'data/robots/reflex_col.rob'
+	'reflex_col':'data/robots/reflex_col.rob',
+	'soft_hand':'data/robots/soft_hand.urdf',
+	'reflex':'data/robots/reflex.rob'
 }
 
 
