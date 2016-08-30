@@ -1,0 +1,5 @@
+<sensors>
+  <JointPositionSensor name="encoders"/>
+  <JointVelocitySensor name="dencoders"/>
+  <DriverTorqueSensor name="current"/>
+</sensors>

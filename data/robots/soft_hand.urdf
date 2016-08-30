@@ -2011,7 +2011,7 @@ axis momenta are :
 		-->
   </gazebo>
 
-   <klampt package_root="." fixed_root_link="1">
+   <klampt package_root="." fixed_root_link="1" sensors="soft_hand_sensors.xml">
    <!--klampt package_root="." use_vis_geom="1" fixed_root_link="1"/-->
      <link name="world" physical="0" />
      <link name="soft_hand_invisible_wire_link" physical="false" servoP="3.0" servoD="0.3" servoI="0.03"/>

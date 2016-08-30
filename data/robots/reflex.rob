@@ -116,3 +116,5 @@ noselfcollision 7  9   7 10  7 11  7 12  7 13  7 14  7 15
 noselfcollision 8  10  8 12  8 13
 noselfcollision 9  11  9 12  9 13
 noselfcollision 12 15
+
+property sensors "reflex_sensors.xml"
