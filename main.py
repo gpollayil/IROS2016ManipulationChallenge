@@ -24,6 +24,7 @@ import importlib
 import os
 import time
 import sys
+import math
 
 box_dims = (0.5, 0.5, 0.3)
 shelf_dims = (0.4, 0.4, 0.3)
@@ -32,18 +33,15 @@ shelf_height = 0.7
 moving_base_template_fn = 'data/robots/moving_base_template.rob'
 object_template_fn = 'data/objects/object_template.obj'
 objects = {}
-objects['ycb'] = [f for f in sorted(os.listdir('data/objects/ycb'))]
 objects['apc2015'] = [f for f in sorted(os.listdir('data/objects/apc2015'))]
 robots = ['reflex_col']
 
 object_geom_file_patterns = {
-    'ycb': ['data/objects/ycb/%s/meshes/tsdf_mesh.stl', 'data/objects/ycb/%s/meshes/poisson_mesh.stl'],
     'apc2015': ['data/objects/apc2015/%s/textured_meshes/optimized_tsdf_textured_mesh.ply']
 }
 # default mass for objects whose masses are not specified, in kg
 default_object_mass = 0.5
 object_masses = {
-    'ycb': dict(),
     'apc2015': dict(),
 }
 robot_files = {
@@ -318,7 +316,7 @@ def launch_balls(robotname, num_balls=10):
     set_moving_base_xform(robot, xform[0], xform[1])
 
     # now the simulation is launched
-    program = GLSimulationProgram(world)
+    program = GLSimulationPlugin(world)
     sim = program.sim
 
     # setup some simulation parameters
@@ -342,7 +340,7 @@ def launch_balls(robotname, num_balls=10):
     sim.controller(0).setPIDCommand(robot.getConfig(), robot.getVelocity())
 
     """
-    #this code uses the GLSimulationProgram structure, which gives a little more control over the visualization
+    #this code uses the GLSimulationPlugin structure, which gives a little more control over the visualization
     vis.setPlugin(program)
     vis.show()
     while vis.shown():
@@ -472,7 +470,7 @@ def launch_shelf(robotname, objects):
     set_moving_base_xform(robot, xform[0], xform[1])
 
     # now the simulation is launched
-    program = GLSimulationProgram(world)
+    program = GLSimulationPlugin(world)
     sim = program.sim
 
     # setup some simulation parameters
@@ -495,7 +493,7 @@ def launch_shelf(robotname, objects):
     # the next line latches the current configuration in the PID controller...
     sim.controller(0).setPIDCommand(robot.getConfig(), robot.getVelocity())
 
-    # this code uses the GLSimulationProgram structure, which gives a little more control over the visualization
+    # this code uses the GLSimulationPlugin structure, which gives a little more control over the visualization
     vis.setPlugin(program)
     program.reshape(800, 600)
     vis.show()
