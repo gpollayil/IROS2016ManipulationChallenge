@@ -33,8 +33,9 @@ shelf_height = 0.7
 moving_base_template_fn = 'data/robots/moving_base_template.rob'
 object_template_fn = 'data/objects/object_template.obj'
 objects = {}
-objects['apc2015'] = [f for f in sorted(os.listdir('data/objects/apc2015'))]
-robots = ['reflex_col']
+# objects['ycb'] = [f for f in os.listdir('data/objects/ycb')]
+objects['apc2015'] = [f for f in os.listdir('data/objects/apc2015')]
+robots = ['reflex_col', 'soft_hand', 'reflex']
 
 object_geom_file_patterns = {
     'apc2015': ['data/objects/apc2015/%s/textured_meshes/optimized_tsdf_textured_mesh.ply']
@@ -45,7 +46,9 @@ object_masses = {
     'apc2015': dict(),
 }
 robot_files = {
-    'reflex_col': 'data/robots/reflex_col.rob'
+    'reflex_col': 'data/robots/reflex_col.rob',
+    'soft_hand': 'data/robots/soft_hand.urdf',
+    'reflex': 'data/robots/reflex.rob'
 }
 
 
@@ -525,7 +528,7 @@ if __name__ == '__main__':
         dataset = random.choice(objects.keys())
 
     # choose the robot model here
-    robot = "reflex_col"
+    robot = "soft_hand"
     # choose the setup here
     if dataset == 'balls':
         try:
@@ -568,7 +571,6 @@ if __name__ == '__main__':
                 try:
                     index = int(objname)
                     objname = objects[dataset][index]
-                    print "('%s','%s')" % (dataset, objname)
                 except:
                     pass
                 shelved.append((dataset, objname))
