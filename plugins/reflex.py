@@ -1,75 +1,81 @@
-from klampt import *
-from klampt.vis.glrobotprogram import *
-from klampt.math import *
 import numpy as np
+from klampt import *
+from klampt.math import *
+from klampt.vis.glrobotprogram import *
+
 from actuators.CompliantHandEmulator import CompliantHandEmulator
 
-
-#The hardware name
+# The hardware name
 gripper_name = 'reflex'
 
-#The Klamp't model name
+# The Klamp't model name
 klampt_model_name = 'data/robots/reflex.rob'
 
-#the number of Klamp't model DOFs
+# the number of Klamp't model DOFs
 numLinks = 19
 
-#The number of command dimensions
+# The number of command dimensions
 numCommandDims = 4
 
-#The names of the command dimensions
-commandNames = ['finger1','finger2','finger3','preshape']
+# The names of the command dimensions
+commandNames = ['finger1', 'finger2', 'finger3', 'preshape']
 
-#default postures
+# default postures
 openCommand = [1]
 closeCommand = [0]
 
-#named preset list
-presets = {'open':openCommand,
-           'closed':closeCommand
+# named preset list
+presets = {'open': openCommand,
+           'closed': closeCommand
            }
 
-#range of postures
+# range of postures
 commandMinimum = [0]
 commandMaximum = [1]
 
-#range of valid command velocities
+# range of valid command velocities
 commandMinimumVelocity = [-1]
 commandMaximumVelocity = [1]
 
-swivel_links = [2,7]
-proximal_links = [3,8,12]
-distal_links = [4,9,13]
+swivel_links = [2, 7]
+proximal_links = [3, 8, 12]
+distal_links = [4, 9, 13]
+
 
 class HandModel:
     """A kinematic model of the Reflex hand"""
-    def __init__(self,robot,link_offset=0,driver_offset=0):
+
+    def __init__(self, robot, link_offset=0, driver_offset=0):
         """
         Arguments:
         - robot: the RobotModel instance containing the reflex_col hand.
         - link_offset: the link of the base of the hand in the robot model
         - driver_offset: the driver index of the first driver link in the robot model
         """
-        global swivel_links,proximal_links,distal_links
+        global swivel_links, proximal_links, distal_links
         self.robot = robot
         self.link_offset = link_offset
         self.driver_offset = driver_offset
-        qmin,qmax = self.robot.getJointLimits()
+        qmin, qmax = self.robot.getJointLimits()
         self.swivel_driver = self.driver_offset
-        self.swivel_links = [link_offset+i for i in swivel_links]
-        self.proximal_links = [link_offset+i for i in proximal_links]
-        self.distal_links = [link_offset+i for i in distal_links]
-        self.proximal_drivers = [self.driver_offset+1,self.driver_offset+6,self.driver_offset+10]
-        self.distal_drivers = [self.driver_offset+2,self.driver_offset+7,self.driver_offset+11]
-        self.jointLimits = ([qmin[link_offset+proximal_links[0]],qmin[link_offset+proximal_links[1]],qmin[link_offset+proximal_links[2]],0],
-                            [qmax[link_offset+proximal_links[0]],qmax[link_offset+proximal_links[1]],qmax[link_offset+proximal_links[2]],0])
+        self.swivel_links = [link_offset + i for i in swivel_links]
+        self.proximal_links = [link_offset + i for i in proximal_links]
+        self.distal_links = [link_offset + i for i in distal_links]
+        self.proximal_drivers = [self.driver_offset + 1, self.driver_offset + 6, self.driver_offset + 10]
+        self.distal_drivers = [self.driver_offset + 2, self.driver_offset + 7, self.driver_offset + 11]
+        self.jointLimits = ([qmin[link_offset + proximal_links[0]], qmin[link_offset + proximal_links[1]],
+                             qmin[link_offset + proximal_links[2]], 0],
+                            [qmax[link_offset + proximal_links[0]], qmax[link_offset + proximal_links[1]],
+                             qmax[link_offset + proximal_links[2]], 0])
+
 
 class HandEmulator(CompliantHandEmulator):
     """An simulation model for the SoftHand for use with SimpleSimulation"""
+
     def __init__(self, sim, robotindex=0, link_offset=0, driver_offset=0):
         CompliantHandEmulator.__init__(self, sim, robotindex, link_offset, driver_offset, a_dofs=3, d_dofs=1, u_dofs=6)
 
-        #self.synergy_reduction = 10.5
+        # self.synergy_reduction = 10.5
         self.synergy_reduction = 3.6
         self.effort_scaling = 10.5
         self.model = HandModel(self.robot, link_offset, driver_offset)
@@ -147,12 +153,12 @@ class HandEmulator(CompliantHandEmulator):
         self.E[0, 0] = self.E[2, 2] = self.E[4, 4] = 1.0
         self.E[1, 1] = self.E[3, 3] = self.E[5, 5] = 2.0
 
-        self.q_u_rest = np.array(self.n_fingers*[-0.34,0.0])
+        self.q_u_rest = np.array(self.n_fingers * [-0.34, 0.0])
         self.sigma_offset = np.array(self.a_dofs * [0.1])
         self.initR()
 
     def updateR(self, q_u):
-        da_vinci_f_i = np.ndarray((1,self.u_dofs_per_finger))
+        da_vinci_f_i = np.ndarray((1, self.u_dofs_per_finger))
 
         # base pulley radius
         r0 = 0.015
@@ -168,70 +174,70 @@ class HandEmulator(CompliantHandEmulator):
         a2 = 0.02
         b2 = 0.0
 
-
         # for each finger
         for i in xrange(self.n_fingers):
             # from q to theta
             theta_1_u_id = self.hand[i]['f_to_u'][0]
             theta_2_u_id = self.hand[i]['f_to_u'][1]
-            theta_1 = 0.5*np.pi - q_u[theta_1_u_id]
-            #theta_1 = q_u[theta_1_u_id]
-            theta_2 = 0.5*np.pi - q_u[theta_2_u_id]
+            theta_1 = 0.5 * np.pi - q_u[theta_1_u_id]
+            # theta_1 = q_u[theta_1_u_id]
+            theta_2 = 0.5 * np.pi - q_u[theta_2_u_id]
             theta_2 = q_u[theta_2_u_id]
 
             # from Birglen et al, 2007, page 55
             r = r2 - r1
-            a = l1 - a1 + a2*np.cos(theta_2) - b2*np.sin(theta_2)
-            b = -b1 + a2*np.sin(theta_2) + b2*np.cos(theta_2)
-            l = (a**2 + b**2 - r**2)**0.5
-            R1 = r1 + (b1*(r*b - a*l) - (l1-a1)*(a*r + b*l))/(a**2+b**2)
+            a = l1 - a1 + a2 * np.cos(theta_2) - b2 * np.sin(theta_2)
+            b = -b1 + a2 * np.sin(theta_2) + b2 * np.cos(theta_2)
+            l = (a ** 2 + b ** 2 - r ** 2) ** 0.5
+            R1 = r1 + (b1 * (r * b - a * l) - (l1 - a1) * (a * r + b * l)) / (a ** 2 + b ** 2)
 
             # from Birglen Transmission matrix to R
-            da_vinci_f_i[0,0] = 1.0
-            da_vinci_f_i[0,1] = -R1/r0
+            da_vinci_f_i[0, 0] = 1.0
+            da_vinci_f_i[0, 1] = -R1 / r0
 
-            self.R[i,i*2:i*2+2] = da_vinci_f_i
+            self.R[i, i * 2:i * 2 + 2] = da_vinci_f_i
         return self.R
 
     def setCommand(self, command):
-        self.q_a_ref = np.array([1.0 - self.sigma_offset[i] - max(min(v, 1), 0) for i, v in enumerate(command) if i < self.a_dofs])
+        self.q_a_ref = np.array(
+            [1.0 - self.sigma_offset[i] - max(min(v, 1), 0) for i, v in enumerate(command) if i < self.a_dofs])
         self.q_d_ref = np.array([max(min(v, 1), 0) for i, v in enumerate(command) if
-                        i >= self.a_dofs and i < self.a_dofs + self.d_dofs])
-        #print command
-
+                                 i >= self.a_dofs and i < self.a_dofs + self.d_dofs])
+        # print command
 
     def getCommand(self):
         return np.hstack([1.0 - self.sigma_offset - self.q_a_ref, self.q_d_ref])
 
+
 class HandSimGLViewer(GLSimulationPlugin):
-    def __init__(self,world,base_link=0,base_driver=0):
-        GLSimulationPlugin.__init__(self,world,"Reflex simulation program")
-        self.handsim = HandEmulator(self.sim,0,base_link,base_driver)
-        self.sim.addEmulator(0,self.handsim)
+    def __init__(self, world, base_link=0, base_driver=0):
+        GLSimulationPlugin.__init__(self, world, "Reflex simulation program")
+        self.handsim = HandEmulator(self.sim, 0, base_link, base_driver)
+        self.sim.addEmulator(0, self.handsim)
         self.control_dt = 0.01
 
     def control_loop(self):
-        #external control loop
-        #print "Time",self.sim.getTime()
+        # external control loop
+        # print "Time",self.sim.getTime()
         return
 
     def display(self):
         GLSimulationPlugin.display(self)
 
-        #draw forces
+        # draw forces
         glDisable(GL_LIGHTING)
         glDisable(GL_DEPTH_TEST)
         glLineWidth(4.0)
         glBegin(GL_LINES)
         for l_id in self.handsim.virtual_contacts:
-            glColor3f(0,1,0)
+            glColor3f(0, 1, 0)
             forcelen = 0.1
             l = self.handsim.robot.link(self.handsim.l_to_i[l_id])
             b = self.sim.body(l)
             com = l.getMass().getCom()
             f = self.handsim.virtual_wrenches[l_id][0:3]
             glVertex3f(*se3.apply(b.getTransform(), com))
-            glVertex3f(*se3.apply(b.getTransform(), vectorops.madd(com,f,forcelen)))
+            glVertex3f(*se3.apply(b.getTransform(), vectorops.madd(com, f, forcelen)))
             """
             # draw local link frame
             for color in {(1, 0, 0), (0, 1, 0), (0, 0, 1)}:
@@ -252,7 +258,8 @@ class HandSimGLViewer(GLSimulationPlugin):
                 b = self.sim.body(l)
                 f = self.handsim.virtual_wrenches[l_id][0:3]
                 com = l.getMass().getCom()
-                b.applyForceAtLocalPoint(se3.apply_rotation(b.getTransform(),50*f),com) # could also use applyWrench with moment=[0,0,0]
+                b.applyForceAtLocalPoint(se3.apply_rotation(b.getTransform(), 50 * f),
+                                         com)  # could also use applyWrench with moment=[0,0,0]
             self.control_loop()
             self.sim.simulate(self.control_dt)
 
@@ -266,9 +273,9 @@ class HandSimGLViewer(GLSimulationPlugin):
         print "r/f: activate/deactivate virtual force at finger 2 distal phalanx"
         print "t/g: activate/deactivate virtual force at finger 3 distal phalanx"
 
-    def keyboardfunc(self,c,x,y):
-        #Put your keyboard handler here
-        #the current example toggles simulation / movie mode
+    def keyboardfunc(self, c, x, y):
+        # Put your keyboard handler here
+        # the current example toggles simulation / movie mode
         pl = self.handsim.model.proximal_links
         l2i = self.handsim.l_to_i
         link_index_to_id = {y: x for x, y in l2i.iteritems()}
@@ -283,35 +290,35 @@ class HandSimGLViewer(GLSimulationPlugin):
             # com_b = -b_com = -com
             wrench_at_base[l_id] = tuple(force_at_com) + vectorops.cross(-com, force_at_com)
 
-        if c=='y':
+        if c == 'y':
             u = self.handsim.getCommand()
             u[0] += 0.01
             self.handsim.setCommand(u)
-        elif c=='h':
+        elif c == 'h':
             u = self.handsim.getCommand()
             u[0] -= 0.01
             self.handsim.setCommand(u)
-        elif c=='u':
+        elif c == 'u':
             u = self.handsim.getCommand()
             u[1] += 0.01
             self.handsim.setCommand(u)
-        elif c=='j':
+        elif c == 'j':
             u = self.handsim.getCommand()
             u[1] -= 0.01
             self.handsim.setCommand(u)
-        elif c=='i':
+        elif c == 'i':
             u = self.handsim.getCommand()
             u[2] += 0.01
             self.handsim.setCommand(u)
-        elif c=='k':
+        elif c == 'k':
             u = self.handsim.getCommand()
             u[2] -= 0.01
             self.handsim.setCommand(u)
-        elif c=='o':
+        elif c == 'o':
             u = self.handsim.getCommand()
             u[3] += 0.01
             self.handsim.setCommand(u)
-        elif c=='l':
+        elif c == 'l':
             u = self.handsim.getCommand()
             u[3] -= 0.01
             self.handsim.setCommand(u)
@@ -340,10 +347,10 @@ class HandSimGLViewer(GLSimulationPlugin):
             if self.handsim.virtual_wrenches.has_key(finger3_l_id):
                 self.handsim.virtual_wrenches.pop(finger3_l_id)
         else:
-            GLSimulationPlugin.keyboardfunc(self,c,x,y)
+            GLSimulationPlugin.keyboardfunc(self, c, x, y)
 
-        
-if __name__=='__main__':
+
+if __name__ == '__main__':
     world = WorldModel()
     if len(sys.argv) == 2:
         if not world.readFile(sys.argv[1]):
@@ -355,5 +362,3 @@ if __name__=='__main__':
             exit(1)
     viewer = HandSimGLViewer(world)
     viewer.run()
-
-    

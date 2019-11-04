@@ -1,9 +1,11 @@
+import numpy as np
 from klampt.math import vectorops, se3
 from klampt.sim.simulation import ActuatorEmulator
-import numpy as np
+
 
 class CompliantHandEmulator(ActuatorEmulator):
     """An simulation model for the SoftHand for use with SimpleSimulation"""
+
     def __init__(self, sim, robotindex=0, link_offset=0, driver_offset=0, a_dofs=0, d_dofs=0, u_dofs=0, m_dofs=0):
         self.world = sim.world
         self.sim = sim
@@ -47,9 +49,9 @@ class CompliantHandEmulator(ActuatorEmulator):
         self.virtual_contacts = dict()
         self.virtual_wrenches = dict()
 
-        self.tau_c = None           #
+        self.tau_c = None  #
         self.f_a = np.array(self.a_dofs * [0.0])
-        self.g_c = None             # we store here gravity compensation torques
+        self.g_c = None  # we store here gravity compensation torques
 
         for i in xrange(self.robot.numDrivers()):
             driver = self.robot.driver(i)
@@ -135,7 +137,7 @@ class CompliantHandEmulator(ActuatorEmulator):
         @return (torque, qdes) where #torque = n_dofs, #qdes = n_links
         """
         torque = np.array(self.n_dofs * [0.0])
-        self.g_q = np.array(self.robot.getGravityForces([0,0,-9.81]))
+        self.g_q = np.array(self.robot.getGravityForces([0, 0, -9.81]))
         # gravity compensation
         torque = self.g_q[self.q_to_t]
 
@@ -158,24 +160,27 @@ class CompliantHandEmulator(ActuatorEmulator):
 
         E_inv = np.linalg.inv(self.E)
         R_E_inv_R_T_inv = np.linalg.inv(self.R.dot(E_inv).dot(self.R.T))
-        sigma = q_a + self.sigma_offset # q_a goes from 0.0 to 1.0
+        sigma = q_a + self.sigma_offset  # q_a goes from 0.0 to 1.0
         f_c, J_c = self.get_contact_forces_and_jacobians()
         self.tau_c = J_c.T.dot(f_c)
 
         # tendon tension
-        self.f_a =  self.effort_scaling * R_E_inv_R_T_inv.dot(self.R).dot(E_inv).dot(self.tau_c) + self.synergy_reduction * R_E_inv_R_T_inv.dot(sigma)
+        self.f_a = self.effort_scaling * R_E_inv_R_T_inv.dot(self.R).dot(E_inv).dot(
+            self.tau_c) + self.synergy_reduction * R_E_inv_R_T_inv.dot(sigma)
 
-        torque_a = 0.0 * (self.f_a / self.synergy_reduction) # f_a offset
+        torque_a = 0.0 * (self.f_a / self.synergy_reduction)  # f_a offset
 
-        torque_u = self.R.T.dot(self.f_a) - self.E.dot(q_u-self.q_u_rest)
+        torque_u = self.R.T.dot(self.f_a) - self.E.dot(q_u - self.q_u_rest)
 
-        torque_m = len(self.m_to_u)*[0.0] # 0 offset
+        torque_m = len(self.m_to_u) * [0.0]  # 0 offset
 
-        q_u_ref = self.q_u_rest + self.effort_scaling * (-E_inv + E_inv.dot(self.R.T).dot(R_E_inv_R_T_inv).dot(self.R).dot(E_inv)).dot(self.tau_c) + self.synergy_reduction * E_inv.dot(self.R.T).dot(R_E_inv_R_T_inv).dot(sigma)
+        q_u_ref = self.q_u_rest + self.effort_scaling * (
+                    -E_inv + E_inv.dot(self.R.T).dot(R_E_inv_R_T_inv).dot(self.R).dot(E_inv)).dot(
+            self.tau_c) + self.synergy_reduction * E_inv.dot(self.R.T).dot(R_E_inv_R_T_inv).dot(sigma)
 
-        torque[self.a_to_n] = torque_a # synergy actuators are affected by gravity
-        torque[self.u_to_n] += torque_u # underactuated joints are emulated, no gravity
-        torque[self.m_to_n] += torque_m # mimic joints are emulated, no gravity
+        torque[self.a_to_n] = torque_a  # synergy actuators are affected by gravity
+        torque[self.u_to_n] += torque_u  # underactuated joints are emulated, no gravity
+        torque[self.m_to_n] += torque_m  # mimic joints are emulated, no gravity
 
         qdes = np.array(self.controller.getCommandedConfig())
         qdes[[self.q_to_t[u_id] for u_id in self.u_to_n]] = q_u_ref
@@ -239,15 +244,14 @@ class CompliantHandEmulator(ActuatorEmulator):
             if self.virtual_contacts.has_key(l_id):
                 b = self.sim.body(link_in_contact)
 
-                f_v = se3.apply_rotation(b.getTransform(),self.virtual_wrenches[l_id][0:3])
-                t_v = se3.apply_rotation(b.getTransform(),self.virtual_wrenches[l_id][3:6])
+                f_v = se3.apply_rotation(b.getTransform(), self.virtual_wrenches[l_id][0:3])
+                t_v = se3.apply_rotation(b.getTransform(), self.virtual_wrenches[l_id][3:6])
                 if not f_l.has_key(l_id):
                     f_l[l_id] = f_v
                     t_l[l_id] = t_v
                 else:
                     f_l[l_id] = f_v
                     t_l[l_id] = t_v
-
 
             ### debugging ###
             """
@@ -259,30 +263,29 @@ class CompliantHandEmulator(ActuatorEmulator):
                 J_l[l_id] = np.array(link_in_contact.getJacobian(
                     (0, 0, 0)))
                 self.robot.setConfig(self.sim.getActualConfig(self.robotindex))
-                #print "J_l[l_id]:\n",J_l[l_id]
-                #print "J_l shape", J_l[l_id].shape
+                # print "J_l[l_id]:\n",J_l[l_id]
+                # print "J_l shape", J_l[l_id].shape
         f_c = np.array(6 * n_contacts * [0.0])
         J_c = np.zeros((6 * n_contacts, self.u_dofs))
 
         for l_in_contact in xrange(len(J_l.keys())):
             f_c[l_in_contact * 6:l_in_contact * 6 + 3
-            ] = t_l.values()[l_in_contact] # Jacobian has angular velocity first, then linear
+            ] = t_l.values()[l_in_contact]  # Jacobian has angular velocity first, then linear
             f_c[l_in_contact * 6 + 3:l_in_contact * 6 + 6
-            ] = f_l.values()[l_in_contact] # Jacobian has angular velocity first, then linear
+            ] = f_l.values()[l_in_contact]  # Jacobian has angular velocity first, then linear
             J_c[l_in_contact * 6:l_in_contact * 6 + 6,
             :] = np.array(
                 J_l.values()[l_in_contact])[:, [self.q_to_t[u_id] for u_id in self.u_to_n]]
-        #print f_c, J_c
+        # print f_c, J_c
         return (f_c, J_c)
-
 
     def setCommand(self, command):
         self.q_a_ref = np.array([max(min(v, 1), 0) for i, v in enumerate(command) if i < self.a_dofs])
-        self.q_d_ref = np.array([max(min(v, 1), 0) for i, v in enumerate(command) if i >= self.a_dofs and i < self.a_dofs + self.d_dofs])
+        self.q_d_ref = np.array(
+            [max(min(v, 1), 0) for i, v in enumerate(command) if i >= self.a_dofs and i < self.a_dofs + self.d_dofs])
 
     def getCommand(self):
         return np.hstack([self.q_a_ref, self.q_d_ref])
-
 
     def process(self, commands, dt):
         if commands:
@@ -298,18 +301,17 @@ class CompliantHandEmulator(ActuatorEmulator):
                 pass
 
         torque, qdes = self.output()
-        #dqdes = self.sim.getActualVelocity(self.robotindex)
+        # dqdes = self.sim.getActualVelocity(self.robotindex)
         dqdes = self.controller.getCommandedVelocity()
         self.controller.setPIDCommand(qdes, dqdes, torque)
 
     def substep(self, dt):
         torque, qdes = self.output()
-        #qdes = np.array(self.sim.getActualConfig(self.robotindex))
+        # qdes = np.array(self.sim.getActualConfig(self.robotindex))
         qdes[[self.q_to_t[d_id] for d_id in self.d_to_n]] = self.q_d_ref
-        #dqdes = self.sim.getActualVelocity(self.robotindex)
+        # dqdes = self.sim.getActualVelocity(self.robotindex)
         dqdes = self.controller.getCommandedVelocity()
         self.controller.setPIDCommand(qdes, dqdes, torque)
-
 
     def drawGL(self):
         pass
