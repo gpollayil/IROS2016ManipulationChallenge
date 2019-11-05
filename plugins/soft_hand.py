@@ -7,14 +7,16 @@ import numpy as np
 import sys
 from OpenGL.GL import *
 from OpenGL.GLU import *
-
-
+import os
 
 #The hardware name
 gripper_name = 'soft_hand'
 
 #The Klamp't model name
-klampt_model_name = 'data/robots/soft_hand.urdf'
+curr_path = os.path.dirname(os.path.abspath(__file__))
+klampt_model_name = curr_path + '/../data/robots/soft_hand.urdf'
+
+print "The curr path + model path is " + klampt_model_name
 
 #the number of Klamp't model DOFs
 numLinks = 38
