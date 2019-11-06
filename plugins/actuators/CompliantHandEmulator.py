@@ -2,7 +2,6 @@ import numpy as np
 from klampt.math import vectorops, se3
 from klampt.sim.simulation import ActuatorEmulator
 
-
 class CompliantHandEmulator(ActuatorEmulator):
     """An simulation model for the SoftHand for use with SimpleSimulation"""
 
@@ -183,8 +182,8 @@ class CompliantHandEmulator(ActuatorEmulator):
         torque[self.m_to_n] += torque_m  # mimic joints are emulated, no gravity
 
         qdes = np.array(self.controller.getCommandedConfig())
-        qdes[[self.q_to_t[u_id] for u_id in self.u_to_n]] = q_u_ref
-        qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = q_u_ref
+        qdes[[self.q_to_t[u_id] for u_id in self.u_to_n]] = q_u_ref[1]          # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
+        qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = q_u_ref[1]          # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
         qdes[[self.q_to_t[a_id] for a_id in self.a_to_n]] = self.q_a_ref
         qdes[[self.q_to_t[d_id] for d_id in self.d_to_n]] = self.q_d_ref
 
