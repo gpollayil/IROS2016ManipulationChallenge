@@ -55,6 +55,7 @@ class CompliantHandEmulator(ActuatorEmulator):
         for i in xrange(self.robot.numDrivers()):
             driver = self.robot.driver(i)
             link = self.robot.link(driver.getName())
+            #print str(i) + 'th driver name is ' + str(driver.getName()) + ' and its index is ' + str(link.getIndex())
             self.q_to_t.append(link.getIndex())
 
         self.m_to_u = self.m_dofs * [-1]
@@ -182,8 +183,19 @@ class CompliantHandEmulator(ActuatorEmulator):
         torque[self.m_to_n] += torque_m  # mimic joints are emulated, no gravity
 
         qdes = np.array(self.controller.getCommandedConfig())
-        qdes[[self.q_to_t[u_id] for u_id in self.u_to_n]] = q_u_ref[1]          # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
-        qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = q_u_ref[1]          # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
+
+        # print 'self.q_to_t = ' + str(self.q_to_t)
+        # print 'self.u_to_n = ' + str(self.u_to_n)
+        # print 'self.m_to_n = ' + str(self.m_to_n)
+        # print 'qdes = ' + str(qdes)
+        # print '[self.q_to_t[m_id] for m_id in self.m_to_n] = ' + str([self.q_to_t[m_id] for m_id in self.m_to_n])
+        # print 'qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = ' + str(qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]])
+        # print 'q_u_ref = ' + str(q_u_ref)
+        # print 'Length of 1 is ' + str(len(qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]]))
+        # print 'Length of 2 is ' + str(len(q_u_ref))
+
+        qdes[[self.q_to_t[u_id] for u_id in self.u_to_n]] = q_u_ref[range(0,len(self.u_to_n))]         # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
+        qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = q_u_ref[range(0,len(self.m_to_n))]         # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
         qdes[[self.q_to_t[a_id] for a_id in self.a_to_n]] = self.q_a_ref
         qdes[[self.q_to_t[d_id] for d_id in self.d_to_n]] = self.q_d_ref
 
