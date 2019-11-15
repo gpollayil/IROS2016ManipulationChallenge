@@ -194,8 +194,8 @@ class CompliantHandEmulator(ActuatorEmulator):
         # print 'Length of 1 is ' + str(len(qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]]))
         # print 'Length of 2 is ' + str(len(q_u_ref))
 
-        qdes[[self.q_to_t[u_id] for u_id in self.u_to_n]] = q_u_ref[range(0,len(self.u_to_n))]         # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
-        qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = q_u_ref[range(0,len(self.m_to_n))]         # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
+        qdes[[self.q_to_t[u_id] for u_id in self.u_to_n]] = q_u_ref                                 # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
+        qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = q_u_ref[range(0,len(self.m_to_n))]      # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
         qdes[[self.q_to_t[a_id] for a_id in self.a_to_n]] = self.q_a_ref
         qdes[[self.q_to_t[d_id] for d_id in self.d_to_n]] = self.q_d_ref
 
