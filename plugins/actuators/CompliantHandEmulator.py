@@ -117,11 +117,24 @@ class CompliantHandEmulator(ActuatorEmulator):
 
     def setupController(self):
         kP, kI, kD = self.controller.getPIDGains()
+
         for i in self.u_to_n:
             kP[i] = 0.0
             kI[i] = 0.0
             kD[i] = 0.0
+
+        # Temporarily setting all gains to the same value
+        # for i in range(6):
+        #         kP[i] = 10000.0
+        #         kI[i] = 0.0
+        #         kD[i] = 0.0
+
+        print 'The PID Gains are \n Kp = \n', kP, 'Ki = \n', kI, 'Kd = \n', kD
+
         self.controller.setPIDGains(kP, kI, kD)
+
+        print 'The methods are ', dir(self.controller)
+        print 'The command of controller is ', self.controller.commands
 
     def printHandInfo(self):
         print 'Actuated Joint Indices:', self.d_to_n
