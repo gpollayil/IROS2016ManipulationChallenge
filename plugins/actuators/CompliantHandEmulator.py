@@ -124,10 +124,10 @@ class CompliantHandEmulator(ActuatorEmulator):
             kD[i] = 0.0
 
         # Temporarily setting all gains to the same value
-        # for i in range(6):
-        #         kP[i] = 10000.0
-        #         kI[i] = 0.0
-        #         kD[i] = 0.0
+        # for i in range(len(kP)):
+        #         kP[i] = max(kP)
+        #         kI[i] = max(kI)
+        #         kD[i] = max(kD)
 
         print 'The PID Gains are \n Kp = \n', kP, 'Ki = \n', kI, 'Kd = \n', kD
 
