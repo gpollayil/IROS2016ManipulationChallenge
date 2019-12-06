@@ -124,17 +124,20 @@ class CompliantHandEmulator(ActuatorEmulator):
             kD[i] = 0.0
 
         # Temporarily setting all gains to the same value
-        # for i in range(len(kP)):
-        #         kP[i] = max(kP)
-        #         kI[i] = max(kI)
-        #         kD[i] = max(kD)
+        # for i in range(6, len(kP)):
+        #         if kP[i] > 0:
+        #             kP[i] = 1.0
+        #         if kI[i] > 0:
+        #             kI[i] = 10.0
+        #         if kD[i] > 0:
+        #             kD[i] = 0.5
 
         print 'The PID Gains are \n Kp = \n', kP, 'Ki = \n', kI, 'Kd = \n', kD
 
         self.controller.setPIDGains(kP, kI, kD)
 
-        print 'The methods are ', dir(self.controller)
-        print 'The command of controller is ', self.controller.commands
+        # print 'The methods are ', dir(self.controller)
+        # print 'The command of controller is ', self.controller.commands
 
     def printHandInfo(self):
         print 'Actuated Joint Indices:', self.d_to_n
@@ -202,8 +205,8 @@ class CompliantHandEmulator(ActuatorEmulator):
         # print 'self.m_to_n = ' + str(self.m_to_n)
         # print 'qdes = ' + str(qdes)
         # print '[self.q_to_t[m_id] for m_id in self.m_to_n] = ' + str([self.q_to_t[m_id] for m_id in self.m_to_n])
-        # print 'qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = ' + str(qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]])
-        # print 'q_u_ref = ' + str(q_u_ref)
+        print 'qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = ' + str(qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]])
+        print 'q_u_ref = ' + str(q_u_ref)
         # print 'Length of 1 is ' + str(len(qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]]))
         # print 'Length of 2 is ' + str(len(q_u_ref))
 
