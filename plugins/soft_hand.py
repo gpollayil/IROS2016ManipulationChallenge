@@ -113,6 +113,8 @@ class HandEmulator(CompliantHandEmulator):
         assert len(self.a_to_n) == self.a_dofs
         self.a_dofs = len(self.a_to_n)
 
+        print 'The degrees of freedom are ->> u_dofs = ', self.u_dofs, ', m_dofs = ', self.m_dofs, ', a_dofs = ', self.a_dofs
+
         # will contain a map from underactuated joint to mimic joints
         # this means, for example, that joint id 1 has to be matched by mimic joint 19
         self.m_to_u = self.m_dofs*[-1]

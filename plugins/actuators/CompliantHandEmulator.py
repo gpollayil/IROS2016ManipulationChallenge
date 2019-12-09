@@ -2,6 +2,7 @@ import numpy as np
 from klampt.math import vectorops, se3
 from klampt.sim.simulation import ActuatorEmulator
 
+
 class CompliantHandEmulator(ActuatorEmulator):
     """An simulation model for the SoftHand for use with SimpleSimulation"""
 
@@ -55,7 +56,7 @@ class CompliantHandEmulator(ActuatorEmulator):
         for i in xrange(self.robot.numDrivers()):
             driver = self.robot.driver(i)
             link = self.robot.link(driver.getName())
-            #print str(i) + 'th driver name is ' + str(driver.getName()) + ' and its index is ' + str(link.getIndex())
+            # print str(i) + 'th driver name is ' + str(driver.getName()) + ' and its index is ' + str(link.getIndex())
             self.q_to_t.append(link.getIndex())
 
         self.m_to_u = self.m_dofs * [-1]
@@ -191,7 +192,7 @@ class CompliantHandEmulator(ActuatorEmulator):
         torque_m = len(self.m_to_u) * [0.0]  # 0 offset
 
         q_u_ref = self.q_u_rest + self.effort_scaling * (
-                    -E_inv + E_inv.dot(self.R.T).dot(R_E_inv_R_T_inv).dot(self.R).dot(E_inv)).dot(
+                -E_inv + E_inv.dot(self.R.T).dot(R_E_inv_R_T_inv).dot(self.R).dot(E_inv)).dot(
             self.tau_c) + self.synergy_reduction * E_inv.dot(self.R.T).dot(R_E_inv_R_T_inv).dot(sigma)
 
         torque[self.a_to_n] = torque_a  # synergy actuators are affected by gravity
@@ -205,13 +206,16 @@ class CompliantHandEmulator(ActuatorEmulator):
         # print 'self.m_to_n = ' + str(self.m_to_n)
         # print 'qdes = ' + str(qdes)
         # print '[self.q_to_t[m_id] for m_id in self.m_to_n] = ' + str([self.q_to_t[m_id] for m_id in self.m_to_n])
-        print 'qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = ' + str(qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]])
-        print 'q_u_ref = ' + str(q_u_ref)
+        # print 'qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = ' + str(
+        #     qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]])
+        # print 'q_u_ref = ' + str(q_u_ref)
         # print 'Length of 1 is ' + str(len(qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]]))
         # print 'Length of 2 is ' + str(len(q_u_ref))
 
-        qdes[[self.q_to_t[u_id] for u_id in self.u_to_n]] = q_u_ref                                 # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
-        qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = q_u_ref[range(0,len(self.m_to_n))]      # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
+        qdes[[self.q_to_t[u_id] for u_id in
+              self.u_to_n]] = q_u_ref  # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
+        qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = q_u_ref[
+            range(0, len(self.m_to_n))]  # TODO: ATTENTION... MAYBE NOT OK (dimension problems in assignment)
         qdes[[self.q_to_t[a_id] for a_id in self.a_to_n]] = self.q_a_ref
         qdes[[self.q_to_t[d_id] for d_id in self.d_to_n]] = self.q_d_ref
 
@@ -328,6 +332,7 @@ class CompliantHandEmulator(ActuatorEmulator):
                 pass
 
         torque, qdes = self.output()
+        print 'The output values in hand process function are torque = ', torque, ' and qdes = ', qdes
         # dqdes = self.sim.getActualVelocity(self.robotindex)
         dqdes = self.controller.getCommandedVelocity()
         self.controller.setPIDCommand(qdes, dqdes, torque)
