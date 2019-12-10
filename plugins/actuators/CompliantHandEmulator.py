@@ -72,6 +72,9 @@ class CompliantHandEmulator(ActuatorEmulator):
         self.q_a_ref = np.array(self.a_dofs * [0.0])
         self.q_d_ref = np.array(self.d_dofs * [0.0])
 
+        # Adding a desired hand velocity to be passed to the PIDCommand
+        self.dsyn_des = self.controller.getCommandedVelocity()
+
         self.loadHandParameters()
 
         self.loadContactInfo()
@@ -125,13 +128,13 @@ class CompliantHandEmulator(ActuatorEmulator):
             kD[i] = 0.0
 
         # Temporarily setting all gains to the same value
-        # for i in range(6, len(kP)):
-        #         if kP[i] > 0:
-        #             kP[i] = 1.0
-        #         if kI[i] > 0:
-        #             kI[i] = 10.0
-        #         if kD[i] > 0:
-        #             kD[i] = 0.5
+        for i in range(6):
+                if kP[i] > 0:
+                    kP[i] = kP[7]
+                if kI[i] > 0:
+                    kI[i] = kI[7]
+                if kD[i] > 0:
+                    kD[i] = kD[7]
 
         print 'The PID Gains are \n Kp = \n', kP, 'Ki = \n', kI, 'Kd = \n', kD
 
@@ -315,26 +318,40 @@ class CompliantHandEmulator(ActuatorEmulator):
         self.q_d_ref = np.array(
             [max(min(v, 1), 0) for i, v in enumerate(command) if i >= self.a_dofs and i < self.a_dofs + self.d_dofs])
 
+    def setCommandVel(self, command, vel_command):
+        self.q_a_ref = np.array([max(min(v, 1), 0) for i, v in enumerate(command) if i < self.a_dofs])
+        self.q_d_ref = np.array(
+            [max(min(v, 1), 0) for i, v in enumerate(command) if i >= self.a_dofs and i < self.a_dofs + self.d_dofs])
+        self.dsyn_des = vel_command
+
     def getCommand(self):
         return np.hstack([self.q_a_ref, self.q_d_ref])
 
     def process(self, commands, dt):
         if commands:
+            print 'In function hand process -> IN IF COMMANDS'
             if 'position' in commands:
                 self.setCommand(commands['position'])
                 del commands['position']
+                print 'In function hand process -> POSITION'
             if 'qcmd' in commands:
                 self.setCommand(commands['qcmd'])
                 del commands['qcmd']
+                print 'In function hand process -> QCMD'
             if 'speed' in commands:
+                print 'In function hand process -> SPEED'
                 pass
             if 'force' in commands:
+                print 'In function hand process -> FORCE'
                 pass
 
         torque, qdes = self.output()
         print 'The output values in hand process function are torque = ', torque, ' and qdes = ', qdes
         # dqdes = self.sim.getActualVelocity(self.robotindex)
         dqdes = self.controller.getCommandedVelocity()
+
+        dqdes[34] = self.dsyn_des
+
         self.controller.setPIDCommand(qdes, dqdes, torque)
 
     def substep(self, dt):
