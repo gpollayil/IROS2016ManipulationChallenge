@@ -220,7 +220,7 @@ axis momenta are :
   <link name="soft_hand_palm_link">
     <inertial>
       <origin xyz="-0.004568758 -0.006808116 0.027653328"/>
-      <mass value="2.28*0.01"/>
+      <mass value="2.28"/>
       <inertia ixx="1.6302" ixy="0.0228" ixz="0.0228" iyy="0.9462" iyz="0.0456" izz="1.1058"/>
     </inertial>
     <visual>
@@ -246,7 +246,7 @@ axis momenta are :
   <link name="soft_hand_invisible_wire_link">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -264,7 +264,7 @@ axis momenta are :
   <link name="soft_hand_thumb_knuckle_link">
     <inertial>
       <origin xyz="0.013608098 -0.000532174 -0.000216691"/>
-      <mass value="0.09*0.01"/>
+      <mass value="0.09"/>
       <inertia ixx="0.00315" ixy="0.00027" ixz="-0.00054" iyy="0.009" iyz="0.00018" izz="0.009"/>
     </inertial>
     <visual>
@@ -292,7 +292,7 @@ axis momenta are :
   <link name="soft_hand_thumb_fake_link1">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -307,7 +307,7 @@ axis momenta are :
   <link name="soft_hand_thumb_proximal_link">
     <inertial>
       <origin xyz="0.005074337 -4.524e-06 -0.000262953"/>
-      <mass value="0.05*0.01"/>
+      <mass value="0.05"/>
       <inertia ixx="0.00175" ixy="0.0" ixz="0.0001" iyy="0.00275" iyz="0.0" izz="0.00275"/>
     </inertial>
     <visual>
@@ -334,7 +334,7 @@ axis momenta are :
   <link name="soft_hand_thumb_fake_link3">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -349,7 +349,7 @@ axis momenta are :
   <link name="soft_hand_thumb_distal_link">
     <inertial>
       <origin xyz="0.009849094 5.6e-07 0.000820286"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.0035" ixy="0.0" ixz="0.0002" iyy="0.008" iyz="0.0" izz="0.0076"/>
     </inertial>
     <visual>
@@ -376,7 +376,7 @@ axis momenta are :
   <link name="soft_hand_index_knuckle_link">
     <inertial>
       <origin xyz="0.001285644 -9.58e-07 0.000425011"/>
-      <mass value="0.09*0.01"/>
+      <mass value="0.09"/>
       <inertia ixx="0.00405" ixy="0.0" ixz="0.00045" iyy="0.0081" iyz="0.0" izz="0.0063"/>
     </inertial>
     <visual>
@@ -403,7 +403,7 @@ axis momenta are :
   <link name="soft_hand_index_fake_link1">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -418,7 +418,7 @@ axis momenta are :
   <link name="soft_hand_index_proximal_link">
     <inertial>
       <origin xyz="0.005074337 -4.524e-06 -0.000262953"/>
-      <mass value="0.05*0.01"/>
+      <mass value="0.05"/>
       <inertia ixx="0.00175" ixy="0.0" ixz="0.0001" iyy="0.00275" iyz="0.0" izz="0.00275"/>
     </inertial>
     <visual>
@@ -445,7 +445,7 @@ axis momenta are :
   <link name="soft_hand_index_fake_link2">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -460,7 +460,7 @@ axis momenta are :
   <link name="soft_hand_index_middle_link">
     <inertial>
       <origin xyz="0.005074337 -4.524e-06 -0.000262953"/>
-      <mass value="0.05*0.01"/>
+      <mass value="0.05"/>
       <inertia ixx="0.00175" ixy="0.0" ixz="0.0001" iyy="0.00275" iyz="0.0" izz="0.00275"/>
     </inertial>
     <visual>
@@ -487,7 +487,7 @@ axis momenta are :
   <link name="soft_hand_index_fake_link3">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -502,7 +502,7 @@ axis momenta are :
   <link name="soft_hand_index_distal_link">
     <inertial>
       <origin xyz="0.009849094 5.6e-07 0.000820286"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.0035" ixy="0.0" ixz="0.0002" iyy="0.008" iyz="0.0" izz="0.0076"/>
     </inertial>
     <visual>
@@ -529,7 +529,7 @@ axis momenta are :
   <link name="soft_hand_middle_knuckle_link">
     <inertial>
       <origin xyz="0.001285644 -9.58e-07 0.000425011"/>
-      <mass value="0.09*0.01"/>
+      <mass value="0.09"/>
       <inertia ixx="0.00405" ixy="0.0" ixz="0.00045" iyy="0.0081" iyz="0.0" izz="0.0063"/>
     </inertial>
     <visual>
@@ -556,7 +556,7 @@ axis momenta are :
   <link name="soft_hand_middle_fake_link1">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -571,7 +571,7 @@ axis momenta are :
   <link name="soft_hand_middle_proximal_link">
     <inertial>
       <origin xyz="0.005074337 -4.524e-06 -0.000262953"/>
-      <mass value="0.05*0.01"/>
+      <mass value="0.05"/>
       <inertia ixx="0.00175" ixy="0.0" ixz="0.0001" iyy="0.00275" iyz="0.0" izz="0.00275"/>
     </inertial>
     <visual>
@@ -598,7 +598,7 @@ axis momenta are :
   <link name="soft_hand_middle_fake_link2">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -613,7 +613,7 @@ axis momenta are :
   <link name="soft_hand_middle_middle_link">
     <inertial>
       <origin xyz="0.005074337 -4.524e-06 -0.000262953"/>
-      <mass value="0.05*0.01"/>
+      <mass value="0.05"/>
       <inertia ixx="0.00175" ixy="0.0" ixz="0.0001" iyy="0.00275" iyz="0.0" izz="0.00275"/>
     </inertial>
     <visual>
@@ -640,7 +640,7 @@ axis momenta are :
   <link name="soft_hand_middle_fake_link3">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -655,7 +655,7 @@ axis momenta are :
   <link name="soft_hand_middle_distal_link">
     <inertial>
       <origin xyz="0.009849094 5.6e-07 0.000820286"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.0035" ixy="0.0" ixz="0.0002" iyy="0.008" iyz="0.0" izz="0.0076"/>
     </inertial>
     <visual>
@@ -682,7 +682,7 @@ axis momenta are :
   <link name="soft_hand_ring_knuckle_link">
     <inertial>
       <origin xyz="0.001285644 -9.58e-07 0.000425011"/>
-      <mass value="0.09*0.01"/>
+      <mass value="0.09"/>
       <inertia ixx="0.00405" ixy="0.0" ixz="0.00045" iyy="0.0081" iyz="0.0" izz="0.0063"/>
     </inertial>
     <visual>
@@ -709,7 +709,7 @@ axis momenta are :
   <link name="soft_hand_ring_fake_link1">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -724,7 +724,7 @@ axis momenta are :
   <link name="soft_hand_ring_proximal_link">
     <inertial>
       <origin xyz="0.005074337 -4.524e-06 -0.000262953"/>
-      <mass value="0.05*0.01"/>
+      <mass value="0.05"/>
       <inertia ixx="0.00175" ixy="0.0" ixz="0.0001" iyy="0.00275" iyz="0.0" izz="0.00275"/>
     </inertial>
     <visual>
@@ -751,7 +751,7 @@ axis momenta are :
   <link name="soft_hand_ring_fake_link2">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -766,7 +766,7 @@ axis momenta are :
   <link name="soft_hand_ring_middle_link">
     <inertial>
       <origin xyz="0.005074337 -4.524e-06 -0.000262953"/>
-      <mass value="0.05*0.01"/>
+      <mass value="0.05"/>
       <inertia ixx="0.00175" ixy="0.0" ixz="0.0001" iyy="0.00275" iyz="0.0" izz="0.00275"/>
     </inertial>
     <visual>
@@ -793,7 +793,7 @@ axis momenta are :
   <link name="soft_hand_ring_fake_link3">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -808,7 +808,7 @@ axis momenta are :
   <link name="soft_hand_ring_distal_link">
     <inertial>
       <origin xyz="0.009849094 5.6e-07 0.000820286"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.0035" ixy="0.0" ixz="0.0002" iyy="0.008" iyz="0.0" izz="0.0076"/>
     </inertial>
     <visual>
@@ -835,7 +835,7 @@ axis momenta are :
   <link name="soft_hand_little_knuckle_link">
     <inertial>
       <origin xyz="0.001285644 -9.58e-07 0.000425011"/>
-      <mass value="0.09*0.01"/>
+      <mass value="0.09"/>
       <inertia ixx="0.00405" ixy="0.0" ixz="0.00045" iyy="0.0081" iyz="0.0" izz="0.0063"/>
     </inertial>
     <visual>
@@ -862,7 +862,7 @@ axis momenta are :
   <link name="soft_hand_little_fake_link1">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -877,7 +877,7 @@ axis momenta are :
   <link name="soft_hand_little_proximal_link">
     <inertial>
       <origin xyz="0.005074337 -4.524e-06 -0.000262953"/>
-      <mass value="0.05*0.01"/>
+      <mass value="0.05"/>
       <inertia ixx="0.00175" ixy="0.0" ixz="0.0001" iyy="0.00275" iyz="0.0" izz="0.00275"/>
     </inertial>
     <visual>
@@ -904,7 +904,7 @@ axis momenta are :
   <link name="soft_hand_little_fake_link2">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -919,7 +919,7 @@ axis momenta are :
   <link name="soft_hand_little_middle_link">
     <inertial>
       <origin xyz="0.005074337 -4.524e-06 -0.000262953"/>
-      <mass value="0.05*0.01"/>
+      <mass value="0.05"/>
       <inertia ixx="0.00175" ixy="0.0" ixz="0.0001" iyy="0.00275" iyz="0.0" izz="0.00275"/>
     </inertial>
     <visual>
@@ -946,7 +946,7 @@ axis momenta are :
   <link name="soft_hand_little_fake_link3">
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
@@ -961,7 +961,7 @@ axis momenta are :
   <link name="soft_hand_little_distal_link">
     <inertial>
       <origin xyz="0.009849094 5.6e-07 0.000820286"/>
-      <mass value="0.1*0.01"/>
+      <mass value="0.1"/>
       <inertia ixx="0.0035" ixy="0.0" ixz="0.0002" iyy="0.008" iyz="0.0" izz="0.0076"/>
     </inertial>
     <visual>
