@@ -128,13 +128,13 @@ class CompliantHandEmulator(ActuatorEmulator):
             kD[i] = 0.0
 
         # Temporarily setting all gains to the same value
-        for i in range(6):
-                if kP[i] > 0:
-                    kP[i] = kP[7]
-                if kI[i] > 0:
-                    kI[i] = kI[7]
-                if kD[i] > 0:
-                    kD[i] = kD[7]
+        # for i in range(6):
+        #         if kP[i] > 0:
+        #             kP[i] = kP[7]
+        #         if kI[i] > 0:
+        #             kI[i] = kI[7]
+        #         if kD[i] > 0:
+        #             kD[i] = kD[7]
 
         print 'The PID Gains are \n Kp = \n', kP, 'Ki = \n', kI, 'Kd = \n', kD
 
@@ -346,7 +346,7 @@ class CompliantHandEmulator(ActuatorEmulator):
                 pass
 
         torque, qdes = self.output()
-        print 'The output values in hand process function are torque = ', torque, ' and qdes = ', qdes
+        # print 'The output values in hand process function are torque = ', torque, ' and qdes = ', qdes
         # dqdes = self.sim.getActualVelocity(self.robotindex)
         dqdes = self.controller.getCommandedVelocity()
 
