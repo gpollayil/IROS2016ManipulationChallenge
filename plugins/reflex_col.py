@@ -344,7 +344,7 @@ class HandEmulator(ActuatorEmulator):
         glEnable(GL_LIGHTING)
 
 
-class HandSimGLViewer(GLSimulationPlugin):
+class HandSimGLViewer(GlSimulationProgram):
     def __init__(self,world,base_link=0,base_driver=0):
         GLSimulationProgram.__init__(self,world,"Reflex simulation program")
         self.handsim = HandEmulator(self.sim,0,base_link,base_driver)

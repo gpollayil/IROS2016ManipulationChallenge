@@ -146,9 +146,9 @@ class HandEmulator(CompliantHandEmulator):
                 self.R[0, u_id] = self.paramsLoader.handParameters[finger][joint_position]['r']
                 self.E[u_id,u_id] = self.paramsLoader.handParameters[finger][joint_position]['e']
 
-class HandSimGLViewer(GLSimulationPlugin):
+class HandSimGLViewer(GLSimulationProgram):
     def __init__(self,world,base_link=0,base_driver=0):
-        GLSimulationPlugin.__init__(self,world,"Reflex simulation program")
+        GLSimulationProgram.__init__(self,world,"Reflex simulation program")
         self.handsim = HandEmulator(self.sim,0,base_link,base_driver)
         self.sim.addEmulator(0,self.handsim)
         self.control_dt = 0.01
@@ -159,7 +159,7 @@ class HandSimGLViewer(GLSimulationPlugin):
         return
 
     def display(self):
-        GLSimulationPlugin.display(self)
+        GLSimulationProgram.display(self)
 
         #draw forces
         glDisable(GL_LIGHTING)
@@ -201,7 +201,7 @@ class HandSimGLViewer(GLSimulationPlugin):
             self.sim.simulate(self.control_dt)
 
     def print_help(self):
-        GLSimulationPlugin.print_help()
+        GLSimulationProgram.print_help()
         print "o/l: increase/decrease synergy command"
         print "q/a: activate/deactivate virtual force at index distal phalanx"
 
@@ -228,7 +228,7 @@ class HandSimGLViewer(GLSimulationPlugin):
             if self.handsim.virtual_wrenches.has_key(index_distal_id):
                 self.handsim.virtual_wrenches.pop(index_distal_id)
         else:
-            GLSimulationPlugin.keyboardfunc(self, c, x, y)
+            GLSimulationProgram.keyboardfunc(self, c, x, y)
 
 if __name__ == '__main__':
     world = WorldModel()

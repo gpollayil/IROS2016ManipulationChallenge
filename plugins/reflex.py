@@ -209,9 +209,9 @@ class HandEmulator(CompliantHandEmulator):
         return np.hstack([1.0 - self.sigma_offset - self.q_a_ref, self.q_d_ref])
 
 
-class HandSimGLViewer(GLSimulationPlugin):
+class HandSimGLViewer(GLSimulationProgram):
     def __init__(self, world, base_link=0, base_driver=0):
-        GLSimulationPlugin.__init__(self, world, "Reflex simulation program")
+        GLSimulationProgram.__init__(self, world, "Reflex simulation program")
         self.handsim = HandEmulator(self.sim, 0, base_link, base_driver)
         self.sim.addEmulator(0, self.handsim)
         self.control_dt = 0.01
@@ -222,7 +222,7 @@ class HandSimGLViewer(GLSimulationPlugin):
         return
 
     def display(self):
-        GLSimulationPlugin.display(self)
+        GLSimulationProgram.display(self)
 
         # draw forces
         glDisable(GL_LIGHTING)
@@ -264,7 +264,7 @@ class HandSimGLViewer(GLSimulationPlugin):
             self.sim.simulate(self.control_dt)
 
     def print_help(self):
-        GLSimulationPlugin.print_help()
+        GLSimulationProgram.print_help()
         print "y/h: raise/lower finger 1 command"
         print "u/j: raise/lower finger 2 command"
         print "i/k: raise/lower finger 3 command"
@@ -347,7 +347,7 @@ class HandSimGLViewer(GLSimulationPlugin):
             if self.handsim.virtual_wrenches.has_key(finger3_l_id):
                 self.handsim.virtual_wrenches.pop(finger3_l_id)
         else:
-            GLSimulationPlugin.keyboardfunc(self, c, x, y)
+            GLSimulationProgram.keyboardfunc(self, c, x, y)
 
 
 if __name__ == '__main__':

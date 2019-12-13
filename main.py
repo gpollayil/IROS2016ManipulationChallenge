@@ -226,7 +226,7 @@ def launch_simple(robotname, object_set, objectname, use_box=False):
     set_moving_base_xform(robot, xform[0], xform[1])
 
     # now the simulation is launched
-    program = GLSimulationPlugin(world)
+    program = GLSimulationProgram(world)
     sim = program.sim
 
     # setup some simulation parameters
@@ -319,7 +319,7 @@ def launch_balls(robotname, num_balls=10):
     set_moving_base_xform(robot, xform[0], xform[1])
 
     # now the simulation is launched
-    program = GLSimulationPlugin(world)
+    program = GLSimulationProgram(world)
     sim = program.sim
 
     # setup some simulation parameters
@@ -343,7 +343,7 @@ def launch_balls(robotname, num_balls=10):
     sim.controller(0).setPIDCommand(robot.getConfig(), robot.getVelocity())
 
     """
-    #this code uses the GLSimulationPlugin structure, which gives a little more control over the visualization
+    #this code uses the GLSimulationProgram structure, which gives a little more control over the visualization
     vis.setPlugin(program)
     vis.show()
     while vis.shown():
@@ -473,7 +473,7 @@ def launch_shelf(robotname, objects):
     set_moving_base_xform(robot, xform[0], xform[1])
 
     # now the simulation is launched
-    program = GLSimulationPlugin(world)
+    program = GLSimulationProgram(world)
     sim = program.sim
 
     # setup some simulation parameters
@@ -496,7 +496,7 @@ def launch_shelf(robotname, objects):
     # the next line latches the current configuration in the PID controller...
     sim.controller(0).setPIDCommand(robot.getConfig(), robot.getVelocity())
 
-    # this code uses the GLSimulationPlugin structure, which gives a little more control over the visualization
+    # this code uses the GLSimulationProgram structure, which gives a little more control over the visualization
     vis.setPlugin(program)
     program.reshape(800, 600)
     vis.show()
