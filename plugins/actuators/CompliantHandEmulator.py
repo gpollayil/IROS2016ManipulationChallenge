@@ -127,14 +127,15 @@ class CompliantHandEmulator(ActuatorEmulator):
             kI[i] = 0.0
             kD[i] = 0.0
 
-        # Temporarily setting all gains to the same value
-        # for i in range(6):
-        #         if kP[i] > 0:
-        #             kP[i] = kP[7]
-        #         if kI[i] > 0:
-        #             kI[i] = kI[7]
-        #         if kD[i] > 0:
-        #             kD[i] = kD[7]
+        # Temporarily setting palm gains to the same value
+        # This is needed to avoid the palm jumping when starting to be commanded
+        for i in range(6):
+                if kP[i] > 0:
+                    kP[i] = kP[0]
+                if kI[i] > 0:
+                    kI[i] = kI[0]
+                if kD[i] > 0:
+                    kD[i] = kD[0]
 
         print 'The PID Gains are \n Kp = \n', kP, 'Ki = \n', kI, 'Kd = \n', kD
 
