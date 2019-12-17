@@ -1,4 +1,5 @@
 *.pyc
+*.xform
 data/objects/ycb
 data/objects/apc2015
 temp.obj
